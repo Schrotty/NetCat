@@ -1,9 +1,15 @@
 package de.rubenmaurer.netcat.core;
 
+import akka.stream.*;
+import akka.stream.javadsl.*;
+
+import akka.NotUsed;
 import akka.actor.ActorSystem;
 import akka.actor.Props;
 import de.rubenmaurer.netcat.helper.UDPSocket;
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 import java.net.InetSocketAddress;
 import java.util.Scanner;
 
@@ -32,7 +38,7 @@ public class Reader {
      * @param port the targets port
      */
     public static void startReader(String hostname, int port) {
-        new Reader(new InetSocketAddress(hostname, port)).read();
+        new Reader(new InetSocketAddress(hostname, port)).streamRead();
     }
 
     /**
@@ -48,6 +54,8 @@ public class Reader {
 
     /**
      * Read from stdin till EOF
+     *
+     * @deprecated
      */
     private void read() {
         try(Scanner scanner = new Scanner(System.in)) {
@@ -61,5 +69,11 @@ public class Reader {
 
         system.actorOf(Props.create(Transmitter.class,
                 UDPSocket.createSocket(this.address)), "terminator").tell("\u0004", null);
+    }
+
+    private void streamRead() {
+        final Source<Integer, NotUsed> source = Source.range(1, 100);
+
+        source.runForeach(i -> system.actorOf(Props.create(Transmitter.class, UDPSocket.createSocket(address))).tell("Herman", null), ActorMaterializer.create(system));
     }
 }
