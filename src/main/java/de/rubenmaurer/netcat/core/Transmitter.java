@@ -37,11 +37,10 @@ public class Transmitter extends AbstractActor implements Actor {
     }
 
     /**
-     * Send termination message and shuts down system.
+     * Send termination message.
      */
     public void shutdown() {
-        tell("\u0004", this);
-        System.exit(0);
+        context().stop(self());
     }
 
     /**
@@ -51,9 +50,9 @@ public class Transmitter extends AbstractActor implements Actor {
      * @return a Receive object
      */
     public Receive createReceive() {
-        return receiveBuilder().matchEquals("\u0004", s -> this.shutdown()).match(String.class, s -> {
-            tell(s, this);
-            context().stop(self());
-        }).build();
+        return receiveBuilder()
+                .match(String.class, s -> tell(s, this))
+                .matchEquals("\u0004", s -> this.shutdown())
+                .build();
     }
 }

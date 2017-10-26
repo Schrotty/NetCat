@@ -22,7 +22,7 @@ public class Printer extends AbstractActor implements Actor {
     }
 
     /**
-     * Shutdowns this actor.
+     * Shutdown this actor.
      */
     public void shutdown() {
         context().stop(self());
@@ -35,9 +35,9 @@ public class Printer extends AbstractActor implements Actor {
      * @return a Receive object
      */
     public Receive createReceive() {
-        return receiveBuilder().matchEquals("\u0004", s -> this.shutdown()).match(String.class, s -> {
-            tell(s, this);
-            shutdown();
-        }).build();
+        return receiveBuilder()
+                .matchEquals("\u0004", s -> shutdown())
+                .match(String.class, s -> tell(s, this))
+                .build();
     }
 }

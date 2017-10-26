@@ -5,7 +5,6 @@ import akka.actor.Props;
 import de.rubenmaurer.netcat.helper.UDPSocket;
 
 import java.net.InetSocketAddress;
-import java.util.Objects;
 
 /**
  * Receives UDP messages on a given port.
@@ -51,10 +50,9 @@ public class Receiver {
      */
     private void receive() {
         String data = "";
-        while((data = socket.receive(1024)).equals("\u0004")) {
+        while (!data.equals("\u0004")) {
+            data = socket.receive(1024);
             system.actorOf(Props.create(Printer.class)).tell(data, null);
         }
-
-        System.exit(0);
     }
 }

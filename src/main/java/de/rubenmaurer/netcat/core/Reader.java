@@ -1,17 +1,15 @@
 package de.rubenmaurer.netcat.core;
 
-import akka.stream.*;
-import akka.stream.javadsl.*;
-
-import akka.NotUsed;
 import akka.actor.ActorSystem;
 import akka.actor.Props;
+import akka.stream.ActorMaterializer;
+import akka.stream.javadsl.Source;
 import de.rubenmaurer.netcat.helper.UDPSocket;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
 import java.net.InetSocketAddress;
 import java.util.Scanner;
+
+import static akka.actor.Props.create;
 
 /**
  * Read lines from the default input until EOF.
@@ -38,7 +36,7 @@ public class Reader {
      * @param port the targets port
      */
     public static void startReader(String hostname, int port) {
-        new Reader(new InetSocketAddress(hostname, port)).streamRead();
+        new Reader(new InetSocketAddress(hostname, port)).read();
     }
 
     /**
@@ -54,8 +52,6 @@ public class Reader {
 
     /**
      * Read from stdin till EOF
-     *
-     * @deprecated
      */
     private void read() {
         try(Scanner scanner = new Scanner(System.in)) {
@@ -65,15 +61,29 @@ public class Reader {
             }
         } catch (Exception exception) {
             System.err.println(exception.getMessage());
+        } finally {
+            system.actorOf(create(Transmitter.class,
+                    UDPSocket.createSocket(this.address)), "terminator").tell("\u0004", null);
         }
-
-        system.actorOf(Props.create(Transmitter.class,
-                UDPSocket.createSocket(this.address)), "terminator").tell("\u0004", null);
     }
 
+    /**
+     * Read from stdin till EOF
+     *
+     * @deprecated replaced by {@link #read()}
+     */
     private void streamRead() {
-        final Source<Integer, NotUsed> source = Source.range(1, 100);
-
-        source.runForeach(i -> system.actorOf(Props.create(Transmitter.class, UDPSocket.createSocket(address))).tell("Herman", null), ActorMaterializer.create(system));
+        try (Scanner scanner = new Scanner(System.in)) {
+            while (scanner.hasNextLine()) {
+                Source.single(scanner.nextLine()).runForeach(
+                        s -> system.actorOf(create(Transmitter.class,
+                                UDPSocket.createSocket(address))).tell(s, null), ActorMaterializer.create(system));
+            }
+        } catch (Exception exception) {
+            System.err.println(exception.getMessage());
+        } finally {
+            system.actorOf(create(Transmitter.class,
+                    UDPSocket.createSocket(this.address)), "terminator").tell("\u0004", null);
+        }
     }
 }

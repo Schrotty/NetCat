@@ -24,9 +24,11 @@ public class NetCat {
             if (port != -1) {
                 if (params[0].equals("-l")) {
                     Receiver.startReceiver(port);
+                    System.exit(0);
                 }
 
                 Reader.startReader(params[0], port);
+                System.exit(0);
             }
         }
 
@@ -34,7 +36,7 @@ public class NetCat {
     }
 
     /**
-     * Prints the Netcat help.
+     * Prints the netcat help.
      */
     private static void printHelp() {
         System.out.println("Usage:\tjava -jar Netcat.jar <hostname> <port>\r\n\tjava -jar Netcat.jar -l <port>");
