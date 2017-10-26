@@ -40,7 +40,7 @@ public class Transmitter extends AbstractActor implements Actor {
      * Send termination message and shuts down system.
      */
     public void shutdown() {
-        this.tell("\u0004", this);
+        tell("\u0004", this);
         System.exit(0);
     }
 

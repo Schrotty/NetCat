@@ -17,9 +17,14 @@ import java.util.Objects;
 public class Receiver {
 
     /**
-     * The port to listen to.
+     * The receiver actor system.
      */
-    private int port;
+    private ActorSystem system;
+
+    /**
+     * The udp socket used for transmission
+     */
+    private UDPSocket socket;
 
     /**
      * Start waiting for a UDP-Transmission.
@@ -36,7 +41,8 @@ public class Receiver {
      * @param port the port to listen to
      */
     private Receiver(int port) {
-        this.port = port;
+        system = ActorSystem.apply("receiver");
+        socket = UDPSocket.createSocket(new InetSocketAddress(port));
     }
 
     /**
@@ -44,14 +50,8 @@ public class Receiver {
      * a 'Printer' actor to process it.
      */
     private void receive() {
-        ActorSystem system = ActorSystem.apply("receiver");
-
-        UDPSocket socket = UDPSocket.createSocket(new InetSocketAddress(port));
-
         String data = "";
-        while(!Objects.equals(data, "\u0004")) {
-            data = socket.receive(1024);
-
+        while((data = socket.receive(1024)).equals("\u0004")) {
             system.actorOf(Props.create(Printer.class)).tell(data, null);
         }
 

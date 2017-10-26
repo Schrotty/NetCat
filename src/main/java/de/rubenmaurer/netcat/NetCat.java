@@ -18,31 +18,25 @@ public class NetCat {
      * @param params start parameter
      */
     public static void main(String[] params) {
-        if (params.length == 0 || params.length > 2) {
-            printHelp();
-        }
-
-        if (params.length == 1) {
-            if (params[0].equals("-l")) {
-                Receiver.startReceiver(6669);
-            }
-
-            printHelp();
-        }
-
         if (params.length == 2) {
             int port = ParameterValidator.validatePort(params[1]);
+
             if (port != -1) {
+                if (params[0].equals("-l")) {
+                    Receiver.startReceiver(port);
+                }
+
                 Reader.startReader(params[0], port);
             }
         }
+
+        printHelp();
     }
 
     /**
      * Prints the Netcat help.
      */
     private static void printHelp() {
-        System.out.println("Usage:\tjava -jar Netcat.jar <hostname> <port>\r\n\t\tjava -jar Netcat.jar -l");
-        System.exit(0);
+        System.out.println("Usage:\tjava -jar Netcat.jar <hostname> <port>\r\n\tjava -jar Netcat.jar -l <port>");
     }
 }
