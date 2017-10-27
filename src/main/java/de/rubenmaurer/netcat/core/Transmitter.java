@@ -37,7 +37,7 @@ public class Transmitter extends AbstractActor implements Actor {
     }
 
     /**
-     * Send termination message.
+     * Terminate the actor.
      */
     public void shutdown() {
         context().stop(self());
