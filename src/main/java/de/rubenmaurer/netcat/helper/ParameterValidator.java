@@ -20,9 +20,8 @@ public class ParameterValidator {
 
         try {
             valPort = Integer.parseInt(port);
-            if (valPort > 65536 || valPort < 0) throw new Exception("Port out of range!");
         } catch (Exception exception){
-            System.err.println("The port you specified is rubbish! Message: " + exception.getMessage());
+            System.err.println("The port you specified is rubbish!");
         }
 
         return valPort;

@@ -17,7 +17,7 @@ public interface Actor {
     void tell(String message, Actor sender);
 
     /**
-     * Shutdowns the system.
+     * Shutdowns the actor.
      */
     void shutdown();
 }

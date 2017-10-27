@@ -58,14 +58,12 @@ public class UDPSocket {
      * @param maxBytes the max length of the transmission
      * @return the transmission as string
      */
-    public String receive(int maxBytes) {
+    public String receive(int maxBytes) throws Exception {
         byte[] payload = new byte[maxBytes];
         DatagramPacket packet = new DatagramPacket(payload, payload.length);
 
         try (DatagramSocket socket = new DatagramSocket(address.getPort())) {
             socket.receive(packet);
-        } catch (IOException exception) {
-            System.err.println(exception.getMessage());
         }
 
         return new String(packet.getData(), 0, packet.getLength());

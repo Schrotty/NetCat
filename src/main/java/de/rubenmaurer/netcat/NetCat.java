@@ -39,6 +39,6 @@ public class NetCat {
      * Prints the netcat help.
      */
     private static void printHelp() {
-        System.out.println("Usage:\tjava -jar Netcat.jar <hostname> <port>\r\n\tjava -jar Netcat.jar -l <port>");
+        System.out.println("Usage:\tjava -jar Netcat-<version>.jar <hostname> <port>\r\n\tjava -jar Netcat-<version>.jar -l <port>");
     }
 }

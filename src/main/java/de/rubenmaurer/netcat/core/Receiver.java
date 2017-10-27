@@ -31,7 +31,11 @@ public class Receiver {
      * @param port the port to listen to
      */
     public static void startReceiver(int port) {
-        new Receiver(port).receive();
+        try {
+            new Receiver(port).receive();
+        } catch (Exception exception) {
+            System.err.println(String.format("Cannot start receiver: %s", exception.getMessage()));
+        }
     }
 
     /**
@@ -48,7 +52,7 @@ public class Receiver {
      * Waits for a incoming UDP-Transmission and then create
      * a 'Printer' actor to process it.
      */
-    private void receive() {
+    private void receive() throws Exception {
         String data = "";
         while (!data.equals("\u0004")) {
             data = socket.receive(1024);
