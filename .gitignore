@@ -33,3 +33,4 @@ dependency-reduced-pom.xml
 target/
 /buildNumber.properties
 src/test/
+*.iml
