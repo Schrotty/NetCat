@@ -1,5 +1,6 @@
 package de.rubenmaurer.netcat.core;
 
+import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
 import akka.actor.Props;
 import akka.stream.ActorMaterializer;
@@ -54,10 +55,12 @@ public class Reader {
      * Read from stdin till EOF
      */
     private void read() {
+        final ActorRef ref = system.actorOf(Props.create(Transmitter.class, UDPSocket.createSocket(this.address)));
         try(Scanner scanner = new Scanner(System.in)) {
             while (scanner.hasNextLine()) {
-                system.actorOf(Props.create(Transmitter.class,
-                        UDPSocket.createSocket(this.address))).tell(scanner.nextLine(), null);
+                //system.actorOf(Props.create(Transmitter.class,
+                //        UDPSocket.createSocket(this.address))).tell(scanner.nextLine(), null);
+                ref.tell(scanner.nextLine(), null);
             }
         } catch (Exception exception) {
             System.err.println(exception.getMessage());

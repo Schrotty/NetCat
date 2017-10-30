@@ -1,5 +1,6 @@
 package de.rubenmaurer.netcat.core;
 
+import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
 import akka.actor.Props;
 import de.rubenmaurer.netcat.helper.UDPSocket;
@@ -54,9 +55,11 @@ public class Receiver {
      */
     private void receive() throws Exception {
         String data = "";
+        final ActorRef ref = system.actorOf(Props.create(Printer.class));
         while (!data.equals("\u0004")) {
             data = socket.receive(1024);
-            system.actorOf(Props.create(Printer.class)).tell(data, null);
+            //system.actorOf(Props.create(Printer.class)).tell(data, null);
+            ref.tell(data, null);
         }
     }
 }
