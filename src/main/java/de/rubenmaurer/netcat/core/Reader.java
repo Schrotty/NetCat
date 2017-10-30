@@ -73,7 +73,7 @@ public class Reader {
     /**
      * Read from stdin till EOF
      *
-     * @deprecated replaced by {@link #read()}
+     * @deprecated replaced by {@link #read()} and weird as f***
      */
     private void streamRead() {
         try (Scanner scanner = new Scanner(System.in)) {
