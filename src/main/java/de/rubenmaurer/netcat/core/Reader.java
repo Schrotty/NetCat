@@ -1,16 +1,8 @@
 package de.rubenmaurer.netcat.core;
 
 import akka.actor.ActorRef;
-import akka.actor.ActorSystem;
-import akka.actor.Props;
-import akka.stream.ActorMaterializer;
-import akka.stream.javadsl.Source;
-import de.rubenmaurer.netcat.helper.UDPSocket;
 
-import java.net.InetSocketAddress;
 import java.util.Scanner;
-
-import static akka.actor.Props.create;
 
 /**
  * Read lines from the default input until EOF.
@@ -18,75 +10,53 @@ import static akka.actor.Props.create;
  * @author Ruben 'Schrotty' Maurer
  * @version 1.1
  */
-public class Reader {
+public class Reader implements Runnable {
 
-    /**
-     * The reader actor system.
-     */
-    private ActorSystem system;
-
-    /**
-     * The address of the target.
-     */
-    private InetSocketAddress address;
+    private final ActorRef transmitter;
 
     /**
      * Start the reader.
-     *
-     * @param hostname the target hostname
-     * @param port the targets port
      */
-    public static void startReader(String hostname, int port) {
-        new Reader(new InetSocketAddress(hostname, port)).read();
+    static void startReader(ActorRef transmitter) {
+        new Reader(transmitter);
     }
 
     /**
      * Create a new Reader
-     *
-     * @param address the target address
      */
-    private Reader(InetSocketAddress address) {
-        system = ActorSystem.apply("reader");
+    private Reader(ActorRef transmitter) {
+        this.transmitter = transmitter;
 
-        this.address = address;
+        (new Thread(this)).start();
     }
 
     /**
      * Read from stdin till EOF
      */
     private void read() {
-        final ActorRef ref = system.actorOf(Props.create(Transmitter.class, UDPSocket.createSocket(this.address)));
         try(Scanner scanner = new Scanner(System.in)) {
             while (scanner.hasNextLine()) {
-                //system.actorOf(Props.create(Transmitter.class,
-                //        UDPSocket.createSocket(this.address))).tell(scanner.nextLine(), null);
-                ref.tell(scanner.nextLine(), null);
+                transmitter.tell(scanner.nextLine(), null);
             }
         } catch (Exception exception) {
             System.err.println(exception.getMessage());
         } finally {
-            system.actorOf(create(Transmitter.class,
-                    UDPSocket.createSocket(this.address)), "terminator").tell("\u0004", null);
+            transmitter.tell("\u0004", null);
         }
     }
 
     /**
-     * Read from stdin till EOF
+     * When an object implementing interface <code>Runnable</code> is used
+     * to create a thread, starting the thread causes the object's
+     * <code>run</code> method to be called in that separately executing
+     * thread.
+     * <p>
+     * The general contract of the method <code>run</code> is that it may
+     * take any action whatsoever.
      *
-     * @deprecated replaced by {@link #read()} and weird as f***
+     * @see Thread#run()
      */
-    private void streamRead() {
-        try (Scanner scanner = new Scanner(System.in)) {
-            while (scanner.hasNextLine()) {
-                Source.single(scanner.nextLine()).runForeach(
-                        s -> system.actorOf(create(Transmitter.class,
-                                UDPSocket.createSocket(address))).tell(s, null), ActorMaterializer.create(system));
-            }
-        } catch (Exception exception) {
-            System.err.println(exception.getMessage());
-        } finally {
-            system.actorOf(create(Transmitter.class,
-                    UDPSocket.createSocket(this.address)), "terminator").tell("\u0004", null);
-        }
+    public void run() {
+        read();
     }
 }

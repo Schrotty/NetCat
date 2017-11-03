@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetSocketAddress;
+import java.net.SocketException;
 
 /**
  * A helper class for sending and receiving UDP messages.
@@ -12,6 +13,8 @@ import java.net.InetSocketAddress;
  * @version 1.0
  */
 public class UDPSocket {
+
+    private DatagramSocket socket;
 
     /**
      * The address to store the destination/ target.
@@ -23,8 +26,9 @@ public class UDPSocket {
      *
      * @param address the create UDP socket
      */
-    private UDPSocket(InetSocketAddress address) {
+    private UDPSocket(InetSocketAddress address) throws SocketException {
         this.address = address;
+        this.socket = new DatagramSocket(address.getPort());
     }
 
     /**
@@ -34,7 +38,13 @@ public class UDPSocket {
      * @return the created UDP socket
      */
     public static UDPSocket createSocket(InetSocketAddress address) {
-        return new UDPSocket(address);
+        try {
+            return new UDPSocket(address);
+        } catch (Exception exception) {
+            System.err.println(exception.getMessage());
+        }
+
+        return null;
     }
 
     /**
@@ -45,7 +55,7 @@ public class UDPSocket {
     public void send(String message) {
         byte[] payload = message.getBytes();
 
-        try (DatagramSocket socket = new DatagramSocket()) {
+        try {
             socket.send(new DatagramPacket(payload, payload.length, address));
         } catch (IOException exception) {
             System.err.println(exception.getMessage());
@@ -62,8 +72,11 @@ public class UDPSocket {
         byte[] payload = new byte[maxBytes];
         DatagramPacket packet = new DatagramPacket(payload, payload.length);
 
-        try (DatagramSocket socket = new DatagramSocket(address.getPort())) {
+        try {
             socket.receive(packet);
+            address = new InetSocketAddress(packet.getAddress(), packet.getPort());
+        } catch (Exception exception) {
+            System.err.println(exception.getMessage());
         }
 
         return new String(packet.getData(), 0, packet.getLength());

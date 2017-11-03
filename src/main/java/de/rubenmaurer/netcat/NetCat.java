@@ -1,7 +1,9 @@
 package de.rubenmaurer.netcat;
 
-import de.rubenmaurer.netcat.core.Reader;
-import de.rubenmaurer.netcat.core.Receiver;
+import akka.actor.ActorSystem;
+import akka.actor.Props;
+import de.rubenmaurer.netcat.core.ReaderPrinter;
+import de.rubenmaurer.netcat.core.Transceiver;
 import de.rubenmaurer.netcat.helper.ParameterValidator;
 
 /**
@@ -18,18 +20,21 @@ public class NetCat {
      * @param params start parameter
      */
     public static void main(String[] params) {
+        ActorSystem actorSystem = ActorSystem.apply("net-cat");
+
         if (params.length == 2) {
             int port = ParameterValidator.validatePort(params[1]);
 
             if (port != -1) {
                 if (params[0].equals("-l")) {
-                    Receiver.startReceiver(port);
-                    System.exit(0);
+                    actorSystem.actorOf(Props.create(Transceiver.class, port));
+                    return;
                 }
 
-                Reader.startReader(params[0], port);
-                System.exit(0);
+                actorSystem.actorOf(Props.create(ReaderPrinter.class));
             }
+
+            return;
         }
 
         printHelp();

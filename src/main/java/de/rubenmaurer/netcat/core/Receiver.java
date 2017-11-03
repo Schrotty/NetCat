@@ -1,11 +1,7 @@
 package de.rubenmaurer.netcat.core;
 
 import akka.actor.ActorRef;
-import akka.actor.ActorSystem;
-import akka.actor.Props;
 import de.rubenmaurer.netcat.helper.UDPSocket;
-
-import java.net.InetSocketAddress;
 
 /**
  * Receives UDP messages on a given port.
@@ -14,12 +10,9 @@ import java.net.InetSocketAddress;
  * @author Ruben 'Schrotty' Maurer
  * @version 1.0
  */
-public class Receiver {
+public class Receiver implements Runnable {
 
-    /**
-     * The receiver actor system.
-     */
-    private ActorSystem system;
+    private final ActorRef readerPrinter;
 
     /**
      * The udp socket used for transmission
@@ -31,9 +24,9 @@ public class Receiver {
      *
      * @param port the port to listen to
      */
-    public static void startReceiver(int port) {
+    static void startReceiver(UDPSocket socket, ActorRef readerPrinter) {
         try {
-            new Receiver(port).receive();
+            new Receiver(socket, readerPrinter);
         } catch (Exception exception) {
             System.err.println(String.format("Cannot start receiver: %s", exception.getMessage()));
         }
@@ -44,9 +37,11 @@ public class Receiver {
      *
      * @param port the port to listen to
      */
-    private Receiver(int port) {
-        system = ActorSystem.apply("receiver");
-        socket = UDPSocket.createSocket(new InetSocketAddress(port));
+    private Receiver(UDPSocket socket, ActorRef readerPrinter) {
+        this.socket = socket;
+        this.readerPrinter = readerPrinter;
+
+        (new Thread(this)).start();
     }
 
     /**
@@ -55,11 +50,31 @@ public class Receiver {
      */
     private void receive() throws Exception {
         String data = "";
-        final ActorRef ref = system.actorOf(Props.create(Printer.class));
         while (!data.equals("\u0004")) {
             data = socket.receive(1024);
-            //system.actorOf(Props.create(Printer.class)).tell(data, null);
-            ref.tell(data, null);
+            readerPrinter.tell(data, null);
         }
+    }
+
+    /**
+     * When an object implementing interface <code>Runnable</code> is used
+     * to create a thread, starting the thread causes the object's
+     * <code>run</code> method to be called in that separately executing
+     * thread.
+     * <p>
+     * The general contract of the method <code>run</code> is that it may
+     * take any action whatsoever.
+     *
+     * @see Thread#run()
+     */
+    public void run() {
+        System.out.println("Receiver: online");
+
+        try {
+            receive();
+        } catch(Exception exception) {
+            System.err.println(exception.getMessage());
+        }
+
     }
 }

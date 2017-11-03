@@ -12,18 +12,10 @@ import de.rubenmaurer.netcat.helper.UDPSocket;
  */
 public class Transmitter extends AbstractActor implements Actor {
 
-    /**
-     * The used UDP socket
-     */
     private UDPSocket socket;
 
-    /**
-     * Create a new Transmitter with a given socket.
-     *
-     * @param socket the socket
-     */
-    public Transmitter(UDPSocket socket) {
-        this.socket = socket;
+    public Transmitter(UDPSocket udpSocket) {
+        socket = udpSocket;
     }
 
     /**
@@ -41,6 +33,11 @@ public class Transmitter extends AbstractActor implements Actor {
      */
     public void shutdown() {
         context().stop(self());
+    }
+
+    @Override
+    public void preStart() {
+        System.out.println("Transmitter: online");
     }
 
     /**

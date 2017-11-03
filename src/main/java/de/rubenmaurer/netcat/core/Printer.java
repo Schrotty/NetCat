@@ -28,6 +28,11 @@ public class Printer extends AbstractActor implements Actor {
         context().stop(self());
     }
 
+    @Override
+    public void preStart() {
+        System.out.println("Printer: online");
+    }
+
     /**
      * Receives a message an process it.
      * After processing the actor stops itself.
