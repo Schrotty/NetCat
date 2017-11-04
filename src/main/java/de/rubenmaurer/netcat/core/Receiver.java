@@ -22,7 +22,8 @@ public class Receiver implements Runnable {
     /**
      * Start waiting for a UDP-Transmission.
      *
-     * @param port the port to listen to
+     * @param socket the port to listen to
+     * @param readerPrinter the readerPrinter to tell
      */
     static void startReceiver(UDPSocket socket, ActorRef readerPrinter) {
         try {
@@ -35,7 +36,8 @@ public class Receiver implements Runnable {
     /**
      * Start waiting for a UDP-Transmission.
      *
-     * @param port the port to listen to
+     * @param socket the port to listen to
+     * @param readerPrinter the readerPrinter to tell
      */
     private Receiver(UDPSocket socket, ActorRef readerPrinter) {
         this.socket = socket;

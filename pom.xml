@@ -53,6 +53,7 @@
                 <configuration>
                     <reportOutputDirectory>${project.basedir}/docs</reportOutputDirectory>
                     <destDir>/</destDir>
+                    <version>true</version>
                 </configuration>
             </plugin>
 

@@ -8,7 +8,7 @@ import java.util.Scanner;
  * Read lines from the default input until EOF.
  *
  * @author Ruben 'Schrotty' Maurer
- * @version 1.1
+ * @version "%I"
  */
 public class Reader implements Runnable {
 

@@ -7,7 +7,7 @@ import de.rubenmaurer.netcat.core.interfaces.Actor;
  * Receives messages and print them.
  *
  * @author Ruben 'Schrotty' Maurer
- * @version 1.0
+ * @version "%I%"
  */
 public class Printer extends AbstractActor implements Actor {
 
@@ -28,6 +28,9 @@ public class Printer extends AbstractActor implements Actor {
         context().stop(self());
     }
 
+    /**
+     * Gets fired before printer starts.
+     */
     @Override
     public void preStart() {
         System.out.println("Printer: online");
