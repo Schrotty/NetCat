@@ -8,7 +8,7 @@ import java.util.Scanner;
  * Read lines from the default input until EOF.
  *
  * @author Ruben 'Schrotty' Maurer
- * @version "%I"
+ * @version $Id: $Id
  */
 public class Reader implements Runnable {
 
@@ -16,6 +16,8 @@ public class Reader implements Runnable {
 
     /**
      * Start the reader.
+     *
+     * @param transmitter the used transmitter
      */
     static void startReader(ActorRef transmitter) {
         new Reader(transmitter);
@@ -23,6 +25,8 @@ public class Reader implements Runnable {
 
     /**
      * Create a new Reader
+     *
+     * @param transmitter the used transmitter
      */
     private Reader(ActorRef transmitter) {
         this.transmitter = transmitter;

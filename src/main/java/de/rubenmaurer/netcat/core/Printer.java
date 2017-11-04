@@ -1,39 +1,25 @@
 package de.rubenmaurer.netcat.core;
 
 import akka.actor.AbstractActor;
-import de.rubenmaurer.netcat.core.interfaces.Actor;
+import de.rubenmaurer.netcat.NetCat;
 
 /**
  * Receives messages and print them.
  *
  * @author Ruben 'Schrotty' Maurer
- * @version "%I%"
+ * @version $Id: $Id
+ * @since 1.0
  */
-public class Printer extends AbstractActor implements Actor {
+public class Printer extends AbstractActor {
 
     /**
-     * Prints the given message.
+     * {@inheritDoc}
      *
-     * @param message the message to tell
-     * @param sender the sender of the message
-     */
-    public void tell(String message, Actor sender) {
-        System.out.println(message);
-    }
-
-    /**
-     * Shutdown this actor.
-     */
-    public void shutdown() {
-        context().stop(self());
-    }
-
-    /**
      * Gets fired before printer starts.
      */
     @Override
     public void preStart() {
-        System.out.println("Printer: online");
+        NetCat.getActorStat().tell("starting", getSelf());
     }
 
     /**
@@ -44,8 +30,8 @@ public class Printer extends AbstractActor implements Actor {
      */
     public Receive createReceive() {
         return receiveBuilder()
-                .matchEquals("\u0004", s -> shutdown())
-                .match(String.class, s -> tell(s, this))
+                .matchEquals("\u0004", s -> context().stop(self()))
+                .match(String.class, System.out::println)
                 .build();
     }
 }

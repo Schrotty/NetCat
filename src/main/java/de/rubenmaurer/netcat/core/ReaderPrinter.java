@@ -4,12 +4,13 @@ import akka.actor.AbstractActor;
 import akka.actor.Actor;
 import akka.actor.ActorRef;
 import akka.actor.Props;
+import de.rubenmaurer.netcat.NetCat;
 
 /**
  * A component to read and write on stdout.
  *
  * @author Ruben 'Schrotty' Maurer
- * @version "%I"
+ * @version $Id: $Id
  */
 public class ReaderPrinter extends AbstractActor implements Actor {
 
@@ -37,7 +38,7 @@ public class ReaderPrinter extends AbstractActor implements Actor {
      * Create a new ReaderPrinter
      */
     private ReaderPrinter() {
-        printer = getContext().actorOf(Props.create(Printer.class));
+        printer = getContext().actorOf(Props.create(Printer.class), "printer");
     }
 
     /**
@@ -58,10 +59,13 @@ public class ReaderPrinter extends AbstractActor implements Actor {
     }
 
     /**
+     * {@inheritDoc}
+     *
      * Gets fired before ReaderPrinter starts
      */
     @Override
     public void preStart() {
+        NetCat.getActorStat().tell("starting", getSelf());
         Reader.startReader(transceiver.getTransmitter());
     }
 

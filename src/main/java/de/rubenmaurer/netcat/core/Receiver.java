@@ -1,7 +1,7 @@
 package de.rubenmaurer.netcat.core;
 
 import akka.actor.ActorRef;
-import de.rubenmaurer.netcat.helper.UDPSocket;
+import de.rubenmaurer.netcat.components.UDPSocket;
 
 /**
  * Receives UDP messages on a given port.
@@ -12,6 +12,9 @@ import de.rubenmaurer.netcat.helper.UDPSocket;
  */
 public class Receiver implements Runnable {
 
+    /**
+     * The used readerPrinter
+     */
     private final ActorRef readerPrinter;
 
     /**
@@ -25,12 +28,8 @@ public class Receiver implements Runnable {
      * @param socket the port to listen to
      * @param readerPrinter the readerPrinter to tell
      */
-    static void startReceiver(UDPSocket socket, ActorRef readerPrinter) {
-        try {
-            new Receiver(socket, readerPrinter);
-        } catch (Exception exception) {
-            System.err.println(String.format("Cannot start receiver: %s", exception.getMessage()));
-        }
+    static void start(UDPSocket socket, ActorRef readerPrinter) {
+        new Receiver(socket, readerPrinter);
     }
 
     /**
@@ -43,12 +42,14 @@ public class Receiver implements Runnable {
         this.socket = socket;
         this.readerPrinter = readerPrinter;
 
-        (new Thread(this)).start();
+        new Thread(this).start();
     }
 
     /**
      * Waits for a incoming UDP-Transmission and then create
      * a 'Printer' actor to process it.
+     *
+     * @throws Exception when something breaks
      */
     private void receive() throws Exception {
         String data = "";
@@ -70,8 +71,6 @@ public class Receiver implements Runnable {
      * @see Thread#run()
      */
     public void run() {
-        System.out.println("Receiver: online");
-
         try {
             receive();
         } catch(Exception exception) {

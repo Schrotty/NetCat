@@ -3,8 +3,8 @@ package de.rubenmaurer.netcat.core;
 import akka.actor.AbstractActor;
 import akka.actor.ActorRef;
 import akka.actor.Props;
-import de.rubenmaurer.netcat.core.interfaces.Actor;
-import de.rubenmaurer.netcat.helper.UDPSocket;
+import de.rubenmaurer.netcat.NetCat;
+import de.rubenmaurer.netcat.components.UDPSocket;
 
 import java.net.InetSocketAddress;
 
@@ -12,9 +12,9 @@ import java.net.InetSocketAddress;
  * Transceiver for receiving and transmitting.
  *
  * @author Ruben 'Schrotty' Maurer
- * @version "%I"
+ * @version $Id: $Id
  */
-public class Transceiver extends AbstractActor implements Actor {
+public class Transceiver extends AbstractActor {
 
     /**
      * readerPrinter to tell
@@ -48,33 +48,20 @@ public class Transceiver extends AbstractActor implements Actor {
     public Transceiver(int port) {
         socket = UDPSocket.createSocket(new InetSocketAddress(port));
 
-        transmitter = getContext().actorOf(Props.create(Transmitter.class, socket));
-        readerPrinter = getContext().actorOf(Props.create(ReaderPrinter.class, this));
+        transmitter = getContext().actorOf(Props.create(Transmitter.class, socket), "transmitter");
+        readerPrinter = getContext().getSystem().actorOf(Props.create(ReaderPrinter.class, this), "readerPrinter");
     }
 
     /**
-     * Tell an another actor an message.
+     * {@inheritDoc}
      *
-     * @param message the message to tell
-     * @param sender  the sender of the message
-     */
-    public void tell(String message, Actor sender) {
-
-    }
-
-    /**
-     * Shutdowns the actor.
-     */
-    public void shutdown() {
-
-    }
-
-    /**
      * Gets fired before transceiver starts
      */
     @Override
     public void preStart() {
-        Receiver.startReceiver(socket, readerPrinter);
+        NetCat.getActorStat().tell("starting", getSelf());
+
+        Receiver.start(socket, readerPrinter);
     }
 
     /**

@@ -1,4 +1,4 @@
-package de.rubenmaurer.netcat.helper;
+package de.rubenmaurer.netcat.components;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -25,6 +25,7 @@ public class UDPSocket {
      * Create a new UDPSocket.
      *
      * @param address the create UDP socket
+     * @throws SocketException when something goes wrong
      */
     private UDPSocket(InetSocketAddress address) throws SocketException {
         this.address = address;
@@ -67,6 +68,7 @@ public class UDPSocket {
      *
      * @param maxBytes the max length of the transmission
      * @return the transmission as string
+     * @throws java.lang.Exception if any.
      */
     public String receive(int maxBytes) throws Exception {
         byte[] payload = new byte[maxBytes];

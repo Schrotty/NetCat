@@ -1,8 +1,8 @@
 package de.rubenmaurer.netcat.core;
 
 import akka.actor.AbstractActor;
-import de.rubenmaurer.netcat.core.interfaces.Actor;
-import de.rubenmaurer.netcat.helper.UDPSocket;
+import de.rubenmaurer.netcat.NetCat;
+import de.rubenmaurer.netcat.components.UDPSocket;
 
 /**
  * Transmit message using UDP.
@@ -10,34 +10,32 @@ import de.rubenmaurer.netcat.helper.UDPSocket;
  * @author Ruben 'Schrotty' Maurer
  * @version 1.0
  */
-public class Transmitter extends AbstractActor implements Actor {
+public class Transmitter extends AbstractActor {
 
+    /**
+     * The used udp socket
+     */
     private UDPSocket socket;
 
+    /**
+     * <p>Constructor for Transmitter.</p>
+     *
+     * @param udpSocket a {@link de.rubenmaurer.netcat.components.UDPSocket} object.
+     */
     public Transmitter(UDPSocket udpSocket) {
         socket = udpSocket;
     }
 
-    /**
-     * Send the given message using the UDP socket.
-     *
-     * @param message the message to tell
-     * @param sender the sender of the message
-     */
-    public void tell(String message, Actor sender) {
-        socket.send(message);
-    }
-
-    /**
-     * Terminate the actor.
-     */
-    public void shutdown() {
-        context().stop(self());
-    }
-
+    /** {@inheritDoc} */
     @Override
     public void preStart() {
-        System.out.println("Transmitter: online");
+        NetCat.getActorStat().tell("starting", getSelf());
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public void postStop() {
+        NetCat.getActorStat().tell("stopped", getSelf());
     }
 
     /**
@@ -48,8 +46,8 @@ public class Transmitter extends AbstractActor implements Actor {
      */
     public Receive createReceive() {
         return receiveBuilder()
-                .match(String.class, s -> tell(s, this))
-                .matchEquals("\u0004", s -> this.shutdown())
+                .match(String.class, socket::send)
+                .matchEquals("\u0004", s -> getContext().stop(self()))
                 .build();
     }
 }
