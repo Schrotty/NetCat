@@ -1,6 +1,8 @@
 package de.rubenmaurer.netcat.core;
 
 import akka.actor.ActorRef;
+import de.rubenmaurer.netcat.NetCat;
+import de.rubenmaurer.netcat.components.Message;
 
 import java.util.Scanner;
 
@@ -12,40 +14,42 @@ import java.util.Scanner;
  */
 public class Reader implements Runnable {
 
-    private final ActorRef transmitter;
+    private final ActorRef transceiver;
 
     /**
      * Start the reader.
      *
      * @param transmitter the used transmitter
      */
-    static void startReader(ActorRef transmitter) {
+    static void start(ActorRef transmitter) {
         new Reader(transmitter);
     }
 
     /**
      * Create a new Reader
      *
-     * @param transmitter the used transmitter
+     * @param transceiver the used transmitter
      */
-    private Reader(ActorRef transmitter) {
-        this.transmitter = transmitter;
+    private Reader(ActorRef transceiver) {
+        this.transceiver = transceiver;
 
-        (new Thread(this)).start();
+        new Thread(this).start();
     }
 
     /**
      * Read from stdin till EOF
      */
     private void read() {
+        NetCat.getReporter().tell(Message.create("Reader started!"), null);
+
         try(Scanner scanner = new Scanner(System.in)) {
             while (scanner.hasNextLine()) {
-                transmitter.tell(scanner.nextLine(), null);
+                transceiver.tell(scanner.nextLine(), null);
             }
         } catch (Exception exception) {
             System.err.println(exception.getMessage());
         } finally {
-            transmitter.tell("\u0004", null);
+            transceiver.tell("\u0004", null);
         }
     }
 

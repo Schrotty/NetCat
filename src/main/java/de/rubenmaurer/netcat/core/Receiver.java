@@ -1,6 +1,8 @@
 package de.rubenmaurer.netcat.core;
 
 import akka.actor.ActorRef;
+import de.rubenmaurer.netcat.NetCat;
+import de.rubenmaurer.netcat.components.Message;
 import de.rubenmaurer.netcat.components.UDPSocket;
 
 /**
@@ -53,6 +55,8 @@ public class Receiver implements Runnable {
      */
     private void receive() throws Exception {
         String data = "";
+
+        NetCat.getReporter().tell(Message.create("Receiver started!"), null);
         while (!data.equals("\u0004")) {
             data = socket.receive(1024);
             readerPrinter.tell(data, null);

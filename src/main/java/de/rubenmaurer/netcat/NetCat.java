@@ -2,9 +2,8 @@ package de.rubenmaurer.netcat;
 
 import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
-import akka.actor.Props;
-import de.rubenmaurer.netcat.components.Reporter;
 import de.rubenmaurer.netcat.components.ParameterValidator;
+import de.rubenmaurer.netcat.components.Reporter;
 import de.rubenmaurer.netcat.core.ReaderPrinter;
 import de.rubenmaurer.netcat.core.Transceiver;
 
@@ -16,7 +15,11 @@ import de.rubenmaurer.netcat.core.Transceiver;
  */
 public class NetCat {
 
-    private static ActorRef actorStatus;
+    private static ActorRef reporter;
+
+    private static ActorRef transceiver;
+
+    private static ActorRef readerPrinter;
 
     /**
      * Main entry point of this application.
@@ -24,20 +27,19 @@ public class NetCat {
      * @param params start parameter
      */
     public static void main(String[] params) {
-        ActorSystem actorSystem = ActorSystem.apply("root");
-        actorStatus = actorSystem.actorOf(Reporter.getProps(), "actor-status");
-
         printStartUp();
         if (params.length == 2) {
             int port = ParameterValidator.validatePort(params[1]);
 
             if (port != -1) {
+                boot(port);
+
                 if (params[0].equals("-l")) {
-                    actorSystem.actorOf(Props.create(Transceiver.class, port), "transceiver");
+                    //transceiver = actorSystem.actorOf(Transceiver.getProps(port), "transceiver");
                     return;
                 }
 
-                actorSystem.actorOf(Props.create(ReaderPrinter.class), "readerPrinter");
+                //actorSystem.actorOf(Props.create(ReaderPrinter.class), "readerPrinter");
             }
 
             return;
@@ -47,16 +49,18 @@ public class NetCat {
     }
 
     /**
-     * Prints the netcat help.
+     * Print the netcat help message
      */
     private static void printHelp() {
         System.out.println("Usage:\tjava -jar Netcat-<version>.jar <hostname> <port>\r\n\tjava -jar Netcat-<version>.jar -l <port>");
     }
 
+    /**
+     * Print the netcat startup message
+     */
     private static void printStartUp() {
-        System.out.println("[INFO] --------------------------");
-        System.out.println(String.format("[INFO] version: %s build: %s", "1.2", "136"));
-        System.out.println("[INFO] --------------------------");
+        System.out.println(String.format(">> NetCat v.%s_%s", 1.2, 209));
+        System.out.println(">> Starting actors/ threads...");
     }
 
     /**
@@ -64,7 +68,26 @@ public class NetCat {
      *
      * @return a {@link akka.actor.ActorRef} object.
      */
-    public static ActorRef getActorStat() {
-        return actorStatus;
+    public static ActorRef getReporter() {
+        return reporter;
+    }
+
+    public static ActorRef getTransceiver() {
+        return transceiver;
+    }
+
+    public static ActorRef getReaderPrinter() {
+        return readerPrinter;
+    }
+
+    private static void boot(int port) {
+        ActorSystem actorSystem = ActorSystem.apply("root");
+
+        //start reporter actor
+        reporter = actorSystem.actorOf(Reporter.getProps(), "reporter");
+
+        //start main components
+        transceiver = actorSystem.actorOf(Transceiver.getProps(port), "transceiver");
+        readerPrinter = actorSystem.actorOf(ReaderPrinter.getProps(), "readerPrinter");
     }
 }

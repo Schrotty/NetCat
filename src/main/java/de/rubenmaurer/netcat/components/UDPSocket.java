@@ -1,6 +1,5 @@
 package de.rubenmaurer.netcat.components;
 
-import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetSocketAddress;
@@ -57,8 +56,10 @@ public class UDPSocket {
         byte[] payload = message.getBytes();
 
         try {
+            if (address.getAddress().isAnyLocalAddress()) throw new Exception("Missing remote address! Wait for initial transmission!");
+
             socket.send(new DatagramPacket(payload, payload.length, address));
-        } catch (IOException exception) {
+        } catch (Exception exception) {
             System.err.println(exception.getMessage());
         }
     }

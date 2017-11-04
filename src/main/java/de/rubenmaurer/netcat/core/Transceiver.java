@@ -17,11 +17,6 @@ import java.net.InetSocketAddress;
 public class Transceiver extends AbstractActor {
 
     /**
-     * readerPrinter to tell
-     */
-    private ActorRef readerPrinter;
-
-    /**
      * Transmitter to tell
      */
     private ActorRef transmitter;
@@ -47,9 +42,6 @@ public class Transceiver extends AbstractActor {
      */
     public Transceiver(int port) {
         socket = UDPSocket.createSocket(new InetSocketAddress(port));
-
-        transmitter = getContext().actorOf(Props.create(Transmitter.class, socket), "transmitter");
-        readerPrinter = getContext().getSystem().actorOf(Props.create(ReaderPrinter.class, this), "readerPrinter");
     }
 
     /**
@@ -59,9 +51,10 @@ public class Transceiver extends AbstractActor {
      */
     @Override
     public void preStart() {
-        NetCat.getActorStat().tell("starting", getSelf());
+        NetCat.getReporter().tell("starting", getSelf());
 
-        Receiver.start(socket, readerPrinter);
+        transmitter = getContext().actorOf(Transmitter.getProps(socket), "transmitter");
+        Receiver.start(socket, NetCat.getReaderPrinter());
     }
 
     /**
@@ -74,5 +67,15 @@ public class Transceiver extends AbstractActor {
         return receiveBuilder()
                 .match(String.class, s -> transmitter.tell(s, getSelf()))
                 .build();
+    }
+
+    /**
+     * Get Props for actor
+     *
+     * @param port the used port
+     * @return props for the actor
+     */
+    public static Props getProps(int port) {
+        return Props.create(Transceiver.class, port);
     }
 }

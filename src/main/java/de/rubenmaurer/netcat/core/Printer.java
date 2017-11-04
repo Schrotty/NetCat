@@ -19,7 +19,7 @@ public class Printer extends AbstractActor {
      */
     @Override
     public void preStart() {
-        NetCat.getActorStat().tell("starting", getSelf());
+        NetCat.getReporter().tell("starting", getSelf());
     }
 
     /**
@@ -31,7 +31,7 @@ public class Printer extends AbstractActor {
     public Receive createReceive() {
         return receiveBuilder()
                 .matchEquals("\u0004", s -> context().stop(self()))
-                .match(String.class, System.out::println)
+                .match(String.class, s -> System.out.println(String.format(">> %s", s)))
                 .build();
     }
 }

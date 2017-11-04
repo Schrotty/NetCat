@@ -1,6 +1,7 @@
 package de.rubenmaurer.netcat.components;
 
 import akka.actor.AbstractActor;
+import akka.actor.ActorRef;
 import akka.actor.Props;
 
 /**
@@ -20,6 +21,19 @@ public class Reporter extends AbstractActor {
         return Props.create(Reporter.class);
     }
 
+    private String messageBuilder(ActorRef sender, String msg) {
+        return String.format("%s: %s", sender, msg);
+    }
+
+    private void call(String message) {
+        System.out.println(String.format(">> %s", message));
+    }
+
+    @Override
+    public void preStart() {
+        call(messageBuilder(getSelf(), "starting"));
+    }
+
     /**
      * Receives a message an process it.
      * After processing the actor stops itself.
@@ -28,7 +42,8 @@ public class Reporter extends AbstractActor {
      */
     public AbstractActor.Receive createReceive() {
         return receiveBuilder()
-                .match(String.class, s -> System.out.println(String.format("[INFO] %s: %s", getSender().toString(), s)))
+                .match(String.class, s -> call(messageBuilder(getSender(), s)))
+                .match(Message.class, s -> call(s.getMessage()))
                 .build();
     }
 }
