@@ -29,10 +29,11 @@ public class NetCat {
     public static void main(String[] params) {
         printStartUp();
         if (params.length == 2) {
+            String host = params[0];
             int port = ParameterValidator.validatePort(params[1]);
 
             if (port != -1) {
-                boot(port);
+                boot(port, host);
 
                 if (params[0].equals("-l")) {
                     //transceiver = actorSystem.actorOf(Transceiver.getProps(port), "transceiver");
@@ -80,14 +81,14 @@ public class NetCat {
         return readerPrinter;
     }
 
-    private static void boot(int port) {
+    private static void boot(int port, String host) {
         ActorSystem actorSystem = ActorSystem.apply("root");
 
         //start reporter actor
         reporter = actorSystem.actorOf(Reporter.getProps(), "reporter");
 
         //start main components
-        transceiver = actorSystem.actorOf(Transceiver.getProps(port), "transceiver");
+        transceiver = actorSystem.actorOf(Transceiver.getProps(port, host), "transceiver");
         readerPrinter = actorSystem.actorOf(ReaderPrinter.getProps(), "readerPrinter");
     }
 }
