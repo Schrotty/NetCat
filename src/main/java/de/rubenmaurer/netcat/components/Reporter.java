@@ -29,6 +29,7 @@ public class Reporter extends AbstractActor {
         System.out.println(String.format(">> %s", message));
     }
 
+    /** {@inheritDoc} */
     @Override
     public void preStart() {
         call(messageBuilder(getSelf(), "starting"));

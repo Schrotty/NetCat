@@ -18,6 +18,11 @@ public class ReaderPrinter extends AbstractActor {
      */
     private ActorRef printer;
 
+    /**
+     * <p>getProps.</p>
+     *
+     * @return a {@link akka.actor.Props} object.
+     */
     public static Props getProps() {
         return Props.create(ReaderPrinter.class);
     }

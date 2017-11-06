@@ -28,6 +28,12 @@ public class Transmitter extends AbstractActor {
         socket = udpSocket;
     }
 
+    /**
+     * <p>getProps.</p>
+     *
+     * @param socket a {@link de.rubenmaurer.netcat.components.UDPSocket} object.
+     * @return a {@link akka.actor.Props} object.
+     */
     public static Props getProps(UDPSocket socket) {
         return Props.create(Transmitter.class, socket);
     }

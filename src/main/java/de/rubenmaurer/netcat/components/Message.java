@@ -2,6 +2,9 @@ package de.rubenmaurer.netcat.components;
 
 /**
  * The type Message.
+ *
+ * @author ruben
+ * @version $Id: $Id
  */
 public class Message {
     /**

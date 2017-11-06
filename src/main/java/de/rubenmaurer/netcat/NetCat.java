@@ -2,6 +2,7 @@ package de.rubenmaurer.netcat;
 
 import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
+import de.rubenmaurer.netcat.components.ManifestHelper;
 import de.rubenmaurer.netcat.components.ParameterValidator;
 import de.rubenmaurer.netcat.components.Reporter;
 import de.rubenmaurer.netcat.core.ReaderPrinter;
@@ -28,22 +29,14 @@ public class NetCat {
      */
     public static void main(String[] params) {
         printStartUp();
+
         if (params.length == 2) {
-            String host = params[0];
             int port = ParameterValidator.validatePort(params[1]);
 
             if (port != -1) {
-                boot(port, host);
-
-                if (params[0].equals("-l")) {
-                    //transceiver = actorSystem.actorOf(Transceiver.getProps(port), "transceiver");
-                    return;
-                }
-
-                //actorSystem.actorOf(Props.create(ReaderPrinter.class), "readerPrinter");
+                boot(port, params[0]);
+                return;
             }
-
-            return;
         }
 
         printHelp();
@@ -60,12 +53,19 @@ public class NetCat {
      * Print the netcat startup message
      */
     private static void printStartUp() {
-        System.out.println(String.format(">> NetCat v.%s_%s", 1.2, 209));
+        ManifestHelper mh = ManifestHelper.create();
+
+        System.out.println(String.format("%s v.%s-%s by %s",
+                mh.get("Implementation-Title"),
+                mh.get("Implementation-Version"),
+                mh.get("Implementation-Build"),
+                mh.get("Author")
+        ));
         System.out.println(">> Starting actors/ threads...");
     }
-
+    
     /**
-     * <p>getActorStat.</p>
+     * <p>Getter for the field <code>reporter</code>.</p>
      *
      * @return a {@link akka.actor.ActorRef} object.
      */
@@ -73,10 +73,20 @@ public class NetCat {
         return reporter;
     }
 
+    /**
+     * <p>Getter for the field <code>transceiver</code>.</p>
+     *
+     * @return a {@link akka.actor.ActorRef} object.
+     */
     public static ActorRef getTransceiver() {
         return transceiver;
     }
 
+    /**
+     * <p>Getter for the field <code>readerPrinter</code>.</p>
+     *
+     * @return a {@link akka.actor.ActorRef} object.
+     */
     public static ActorRef getReaderPrinter() {
         return readerPrinter;
     }

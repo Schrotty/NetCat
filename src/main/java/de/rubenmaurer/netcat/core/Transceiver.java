@@ -39,6 +39,7 @@ public class Transceiver extends AbstractActor {
      * Create a new Transceiver.
      *
      * @param port the port to use
+     * @param host a {@link java.lang.String} object.
      */
     public Transceiver(int port, String host) {
         socket = UDPSocket.createSocket(new InetSocketAddress(host, port));
@@ -74,6 +75,7 @@ public class Transceiver extends AbstractActor {
      *
      * @param port the used port
      * @return props for the actor
+     * @param host a {@link java.lang.String} object.
      */
     public static Props getProps(int port, String host) {
         return Props.create(Transceiver.class, port, host);

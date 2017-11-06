@@ -77,7 +77,12 @@ public class UDPSocket {
 
         try {
             socket.receive(packet);
-            address = new InetSocketAddress(packet.getAddress(), packet.getPort());
+
+            //TODO: Works well... but why?!
+            if (address.equals(new InetSocketAddress("-l", address.getPort()))) {
+                address = new InetSocketAddress(packet.getAddress(), packet.getPort());
+                socket.connect(packet.getSocketAddress());
+            }
         } catch (Exception exception) {
             System.err.println(exception.getMessage());
         }

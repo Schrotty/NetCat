@@ -5,6 +5,14 @@
     <groupId>de.rubenmaurer.netcat</groupId>
     <artifactId>NetCat</artifactId>
     <version>1.2-SNAPSHOT</version>
+    <developers>
+        <developer>
+            <id>schrotty</id>
+            <name>Ruben Maurer</name>
+            <email>rubenmaurer@live.de</email>
+            <url>https://rubenmaurer.de</url>
+        </developer>
+    </developers>
 
     <scm>
         <connection>scm:git:https://github.com/Schrotty/NetCat</connection>
@@ -20,6 +28,20 @@
     <build>
         <plugins>
             <plugin>
+                <artifactId>maven-scm-plugin</artifactId>
+                <version>1.9.5</version>
+                <executions>
+                    <execution>
+                        <id>getting-scm.revision</id>
+                        <phase>validate</phase>
+                        <goals>
+                            <goal>update</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-release-plugin</artifactId>
                 <version>2.5.3</version>
@@ -31,14 +53,12 @@
                 <version>1.4</version>
                 <executions>
                     <execution>
-                        <id>buildnumber</id>
                         <phase>validate</phase>
                         <goals>
                             <goal>create</goal>
                         </goals>
                     </execution>
                 </executions>
-
                 <configuration>
                     <format>{0,number}</format>
                     <items>
@@ -46,7 +66,6 @@
                     </items>
                     <doCheck>false</doCheck>
                     <doUpdate>false</doUpdate>
-                    <revisionOnScmFailure>unknownbuild</revisionOnScmFailure>
                 </configuration>
             </plugin>
 
@@ -63,20 +82,32 @@
 
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-shade-plugin</artifactId>
-                <version>2.1</version>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.7.0</version>
+                <configuration>
+                    <source>8</source>
+                    <target>8</target>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <artifactId>maven-resources-plugin</artifactId>
+                <version>2.6</version>
                 <executions>
                     <execution>
-                        <phase>package</phase>
+                        <id>copy-resources</id>
+                        <phase>validate</phase>
                         <goals>
-                            <goal>shade</goal>
+                            <goal>copy-resources</goal>
                         </goals>
                         <configuration>
-                            <transformers>
-                                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                                    <mainClass>de.rubenmaurer.netcat.NetCat</mainClass>
-                                </transformer>
-                            </transformers>
+                            <outputDirectory>${basedir}/target/netcat</outputDirectory>
+                            <resources>
+                                <resource>
+                                    <directory>resources</directory>
+                                    <filtering>true</filtering>
+                                </resource>
+                            </resources>
                         </configuration>
                     </execution>
                 </executions>
@@ -84,12 +115,22 @@
 
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.7.0</version>
-                <configuration>
-                    <source>1.8</source>
-                    <target>1.8</target>
-                </configuration>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>copy-dependencies</id>
+                        <phase>prepare-package</phase>
+                        <goals>
+                            <goal>copy-dependencies</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${project.build.directory}/netcat/lib</outputDirectory>
+                            <overWriteReleases>false</overWriteReleases>
+                            <overWriteSnapshots>false</overWriteSnapshots>
+                            <overWriteIfNewer>true</overWriteIfNewer>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
 
             <plugin>
@@ -98,8 +139,21 @@
                 <version>3.0.2</version>
                 <configuration>
                     <archive>
-                        <manifestFile>${project.build.outputDirectory}/META-INF/MANIFEST.MF</manifestFile>
+                        <manifest>
+                            <addClasspath>true</addClasspath>
+                            <classpathPrefix>lib/</classpathPrefix>
+                            <mainClass>de.rubenmaurer.netcat.NetCat</mainClass>
+                        </manifest>
+                        <manifestEntries>
+                            <Class-Path>.</Class-Path>
+                            <Implementation-Title>${project.name}</Implementation-Title>
+                            <Implementation-Version>${project.version}</Implementation-Version>
+                            <Implementation-Build>${buildNumber}</Implementation-Build>
+                            <Author>Ruben 'Schrotty' Maurer</Author>
+                        </manifestEntries>
                     </archive>
+
+                    <finalName>Netcat/Netcat</finalName>
                 </configuration>
             </plugin>
 
