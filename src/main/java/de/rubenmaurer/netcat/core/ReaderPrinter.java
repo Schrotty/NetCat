@@ -37,7 +37,7 @@ public class ReaderPrinter extends AbstractActor {
         NetCat.getReporter().tell("starting", getSelf());
 
         printer = getContext().actorOf(Props.create(Printer.class), "printer");
-        Reader.start(NetCat.getTransceiver());
+        Reader.start();
     }
 
     /**

@@ -1,6 +1,5 @@
 package de.rubenmaurer.netcat.core;
 
-import akka.actor.ActorRef;
 import de.rubenmaurer.netcat.NetCat;
 import de.rubenmaurer.netcat.components.Message;
 import de.rubenmaurer.netcat.components.UDPSocket;
@@ -15,11 +14,6 @@ import de.rubenmaurer.netcat.components.UDPSocket;
 public class Receiver implements Runnable {
 
     /**
-     * The used readerPrinter
-     */
-    private final ActorRef readerPrinter;
-
-    /**
      * The udp socket used for transmission
      */
     private UDPSocket socket;
@@ -28,21 +22,18 @@ public class Receiver implements Runnable {
      * Start waiting for a UDP-Transmission.
      *
      * @param socket the port to listen to
-     * @param readerPrinter the readerPrinter to tell
      */
-    static void start(UDPSocket socket, ActorRef readerPrinter) {
-        new Receiver(socket, readerPrinter);
+    static void start(UDPSocket socket) {
+        new Receiver(socket);
     }
 
     /**
      * Start waiting for a UDP-Transmission.
      *
      * @param socket the port to listen to
-     * @param readerPrinter the readerPrinter to tell
      */
-    private Receiver(UDPSocket socket, ActorRef readerPrinter) {
+    private Receiver(UDPSocket socket) {
         this.socket = socket;
-        this.readerPrinter = readerPrinter;
 
         new Thread(this).start();
     }
@@ -59,7 +50,7 @@ public class Receiver implements Runnable {
         NetCat.getReporter().tell(Message.create("Receiver started!"), null);
         while (!data.equals("\u0004")) {
             data = socket.receive(1024);
-            readerPrinter.tell(data, null);
+            NetCat.getReaderPrinter().tell(data, null);
         }
     }
 

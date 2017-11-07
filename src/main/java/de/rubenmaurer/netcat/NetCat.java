@@ -9,17 +9,26 @@ import de.rubenmaurer.netcat.core.ReaderPrinter;
 import de.rubenmaurer.netcat.core.Transceiver;
 
 /**
- * An unidirectional Netcat implementation.
+ * An bidirectional Netcat implementation.
  *
  * @author Ruben 'Schrotty' Maurer
  * @version 1.0
  */
 public class NetCat {
 
+    /**
+     * Reporter reference.
+     */
     private static ActorRef reporter;
 
+    /**
+     * Transceiver reference.
+     */
     private static ActorRef transceiver;
 
+    /**
+     * ReaderPrinter reference.
+     */
     private static ActorRef readerPrinter;
 
     /**
@@ -28,40 +37,43 @@ public class NetCat {
      * @param params start parameter
      */
     public static void main(String[] params) {
-        printStartUp();
+        System.out.println(getStartMessage());
 
         if (params.length == 2) {
             int port = ParameterValidator.validatePort(params[1]);
 
             if (port != -1) {
-                boot(port, params[0]);
+                if (!boot(port, params[0])) {
+                    System.out.println(">> boot failed!\nNetcat terminates!");
+                    System.exit(1);
+                }
+
                 return;
             }
         }
 
-        printHelp();
+        System.out.println(getHelpMessage());
     }
 
     /**
      * Print the netcat help message
      */
-    private static void printHelp() {
-        System.out.println("Usage:\tjava -jar Netcat-<version>.jar <hostname> <port>\r\n\tjava -jar Netcat-<version>.jar -l <port>");
+    private static String getHelpMessage() {
+        return "Usage:\tjava -jar Netcat-<version>.jar <hostname> <port>\r\n\tjava -jar Netcat-<version>.jar -l <port>";
     }
 
     /**
      * Print the netcat startup message
      */
-    private static void printStartUp() {
+    private static String getStartMessage() {
         ManifestHelper mh = ManifestHelper.create();
 
-        System.out.println(String.format("%s v.%s-%s by %s",
+        return new StringBuilder(String.format("%s v.%s-%s by %s\n",
                 mh.get("Implementation-Title"),
                 mh.get("Implementation-Version"),
                 mh.get("Implementation-Build"),
                 mh.get("Author")
-        ));
-        System.out.println(">> Starting actors/ threads...");
+        )).append(">> Starting actors/ threads...").toString();
     }
     
     /**
@@ -91,7 +103,14 @@ public class NetCat {
         return readerPrinter;
     }
 
-    private static void boot(int port, String host) {
+    /**
+     * Starts all needed actors and checks for failing actors.
+     *
+     * @param port the port to listen to
+     * @param host the host to transmit to
+     * @return if boot was a success
+     */
+    private static boolean boot(int port, String host) {
         ActorSystem actorSystem = ActorSystem.apply("root");
 
         //start reporter actor
@@ -100,5 +119,7 @@ public class NetCat {
         //start main components
         transceiver = actorSystem.actorOf(Transceiver.getProps(port, host), "transceiver");
         readerPrinter = actorSystem.actorOf(ReaderPrinter.getProps(), "readerPrinter");
+
+        return !reporter.isTerminated() && !transceiver.isTerminated() && !readerPrinter.isTerminated();
     }
 }

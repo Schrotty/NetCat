@@ -3,7 +3,7 @@ package de.rubenmaurer.netcat.components;
 /**
  * The type Message.
  *
- * @author ruben
+ * @author Ruben 'Schrotty' Maurer
  * @version $Id: $Id
  */
 public class Message {

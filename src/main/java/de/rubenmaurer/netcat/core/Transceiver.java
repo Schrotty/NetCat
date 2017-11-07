@@ -27,7 +27,7 @@ public class Transceiver extends AbstractActor {
     private UDPSocket socket;
 
     /**
-     * Get the socket
+     * Get the transmitter
      *
      * @return the transmitter
      */
@@ -55,7 +55,7 @@ public class Transceiver extends AbstractActor {
         NetCat.getReporter().tell("starting", getSelf());
 
         transmitter = getContext().actorOf(Transmitter.getProps(socket), "transmitter");
-        Receiver.start(socket, NetCat.getReaderPrinter());
+        Receiver.start(socket);
     }
 
     /**

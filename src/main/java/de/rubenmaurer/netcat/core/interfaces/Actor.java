@@ -6,7 +6,7 @@ package de.rubenmaurer.netcat.core.interfaces;
  * @author Ruben 'Schrotty' Maurer
  * @version 1.0
  * @since 1.0
- * @deprecated because of akka
+ * @deprecated because of akka usage
  */
 @Deprecated
 public interface Actor {

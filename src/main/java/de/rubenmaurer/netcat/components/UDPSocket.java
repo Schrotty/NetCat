@@ -56,7 +56,7 @@ public class UDPSocket {
         byte[] payload = message.getBytes();
 
         try {
-            if (address.getAddress().isAnyLocalAddress()) throw new Exception("Missing remote address! Wait for initial transmission!");
+            if (address.getAddress() == null) throw new Exception("Missing remote address! Wait for initial transmission!");
 
             socket.send(new DatagramPacket(payload, payload.length, address));
         } catch (Exception exception) {

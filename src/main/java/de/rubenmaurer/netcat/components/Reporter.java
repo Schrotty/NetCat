@@ -21,18 +21,30 @@ public class Reporter extends AbstractActor {
         return Props.create(Reporter.class);
     }
 
+    /**
+     * Build new message from sender ref ans message string.
+     *
+     * @param sender the sender ref
+     * @param msg the message
+     * @return the final message
+     */
     private String messageBuilder(ActorRef sender, String msg) {
         return String.format("%s: %s", sender, msg);
     }
 
-    private void call(String message) {
+    /**
+     * Print a message on stdin.
+     *
+     * @param message the message to print
+     */
+    private void print(String message) {
         System.out.println(String.format(">> %s", message));
     }
 
     /** {@inheritDoc} */
     @Override
     public void preStart() {
-        call(messageBuilder(getSelf(), "starting"));
+        print(messageBuilder(getSelf(), "starting"));
     }
 
     /**
@@ -43,8 +55,8 @@ public class Reporter extends AbstractActor {
      */
     public AbstractActor.Receive createReceive() {
         return receiveBuilder()
-                .match(String.class, s -> call(messageBuilder(getSender(), s)))
-                .match(Message.class, s -> call(s.getMessage()))
+                .match(String.class, s -> print(messageBuilder(getSender(), s)))
+                .match(Message.class, s -> print(s.getMessage()))
                 .build();
     }
 }
