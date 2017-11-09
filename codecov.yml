@@ -1,2 +1,0 @@
-ignore:
-  - " src/main/java/de/rubenmaurer/netcat/*"  # ignore folders and all its contents
