@@ -16,7 +16,7 @@ public class MessageTest {
      */
     @org.junit.Test
     public void getMessage() throws Exception {
-        Assert.assertTrue(Message.create("Schrottler").getMessage().equals("Schrottler"));
+        Assert.assertTrue(Message.create("Schrottler", "").getMessage().equals("Schrottler"));
     }
 
     /**
@@ -26,7 +26,7 @@ public class MessageTest {
      */
     @org.junit.Test
     public void create() throws Exception {
-        Assert.assertTrue(!Objects.equals(Message.create(""), null));
+        Assert.assertTrue(!Objects.equals(Message.create("", ""), null));
     }
 
 }

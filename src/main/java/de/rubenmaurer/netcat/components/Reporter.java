@@ -1,8 +1,8 @@
 package de.rubenmaurer.netcat.components;
 
 import akka.actor.AbstractActor;
-import akka.actor.ActorRef;
 import akka.actor.Props;
+import de.rubenmaurer.netcat.NetCat;
 
 /**
  * <p>Reporter class.</p>
@@ -11,6 +11,11 @@ import akka.actor.Props;
  * @version $Id: $Id
  */
 public class Reporter extends AbstractActor {
+
+    private static final String ANSI_RESET = "\u001B[0m";
+    private static final String ANSI_RED = "\u001B[31m";
+    private static final String ANSI_GREEN = "\u001B[32m";
+    private static final String ANSI_BLUE = "\u001B[34m";
 
     /**
      * <p>getProps.</p>
@@ -24,12 +29,22 @@ public class Reporter extends AbstractActor {
     /**
      * Build new message from sender ref ans message string.
      *
-     * @param sender the sender ref
+     * @param sender the sender name
      * @param msg the message
      * @return the final message
      */
-    private String messageBuilder(ActorRef sender, String msg) {
-        return String.format("%s: %s", sender, msg);
+    private String messageBuilder(String sender, String msg) {
+        String color = ANSI_BLUE;
+
+        if (msg.equals("online")) {
+            color = ANSI_GREEN;
+        }
+
+        if (msg.equals("offline") || msg.equals("error")) {
+            color = ANSI_RED;
+        }
+
+        return String.format("[%s %s %s] %s", color, msg.toUpperCase(), ANSI_RESET, sender);
     }
 
     /**
@@ -41,10 +56,18 @@ public class Reporter extends AbstractActor {
         System.out.println(String.format(">> %s", message));
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void postStop() {
+        NetCat.getReporter().tell("offline", getSelf());
+    }
+
     /** {@inheritDoc} */
     @Override
     public void preStart() {
-        print(messageBuilder(getSelf(), "starting"));
+        getSelf().tell("online", getSelf());
     }
 
     /**
@@ -55,8 +78,8 @@ public class Reporter extends AbstractActor {
      */
     public AbstractActor.Receive createReceive() {
         return receiveBuilder()
-                .match(String.class, s -> print(messageBuilder(getSender(), s)))
-                .match(Message.class, s -> print(s.getMessage()))
+                .match(String.class, s -> print(messageBuilder(getSender().toString(), s)))
+                .match(Message.class, s -> print(messageBuilder(s.getSender(), s.getMessage())))
                 .build();
     }
 }

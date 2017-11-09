@@ -2,7 +2,6 @@ package de.rubenmaurer.netcat.core;
 
 import akka.actor.AbstractActor;
 import akka.actor.Props;
-
 import de.rubenmaurer.netcat.NetCat;
 import de.rubenmaurer.netcat.components.UDPSocket;
 
@@ -41,7 +40,13 @@ public class Transmitter extends AbstractActor {
     /** {@inheritDoc} */
     @Override
     public void preStart() {
-        NetCat.getReporter().tell("starting", getSelf());
+        NetCat.getReporter().tell("online", getSelf());
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public void postStop() {
+        NetCat.getReporter().tell("offline", getSelf());
     }
 
     /**
@@ -53,7 +58,6 @@ public class Transmitter extends AbstractActor {
     public Receive createReceive() {
         return receiveBuilder()
                 .match(String.class, socket::send)
-                .matchEquals("\u0004", s -> getContext().stop(self()))
                 .build();
     }
 }

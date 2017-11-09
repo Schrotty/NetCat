@@ -7,10 +7,16 @@ package de.rubenmaurer.netcat.components;
  * @version $Id: $Id
  */
 public class Message {
+
     /**
      * The Message.
      */
     private String message;
+
+    /**
+     * The sender name.
+     */
+    private String sender;
 
     /**
      * Gets message.
@@ -22,21 +28,33 @@ public class Message {
     }
 
     /**
+     * Gets sender.
+     *
+     * @return the sender
+     */
+    public String getSender() {
+        return sender;
+    }
+
+    /**
      * Create message.
      *
      * @param msg the msg
+     * @param sender the sender name
      * @return the message
      */
-    public static Message create(String msg) {
-        return new Message(msg);
+    public static Message create(String msg, String sender) {
+        return new Message(msg, sender);
     }
 
     /**
      * Instantiates a new Message.
      *
      * @param msg the msg
+     * @param sender the sender name
      */
-    private Message(String msg) {
+    private Message(String msg, String sender) {
         this.message = msg;
+        this.sender = sender;
     }
 }

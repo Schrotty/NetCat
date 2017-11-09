@@ -1,5 +1,6 @@
 package de.rubenmaurer.netcat.core;
 
+import akka.actor.ActorRef;
 import de.rubenmaurer.netcat.NetCat;
 import de.rubenmaurer.netcat.components.Message;
 import de.rubenmaurer.netcat.components.UDPSocket;
@@ -41,16 +42,17 @@ public class Receiver implements Runnable {
     /**
      * Waits for a incoming UDP-Transmission and then create
      * a 'Printer' actor to process it.
-     *
-     * @throws Exception when something breaks
      */
-    private void receive() throws Exception {
+    private void receive() {
         String data = "";
 
-        NetCat.getReporter().tell(Message.create("Receiver started!"), null);
-        while (!data.equals("\u0004")) {
-            data = socket.receive(1024);
-            NetCat.getReaderPrinter().tell(data, null);
+        try {
+            while (!data.equals("\u0004")) {
+                data = socket.receive(1024);
+                NetCat.getReaderPrinter().tell(data, ActorRef.noSender());
+            }
+        } catch (Exception exception) {
+            NetCat.getReporter().tell(Message.create("error", exception.getMessage()), ActorRef.noSender());
         }
     }
 
@@ -66,11 +68,6 @@ public class Receiver implements Runnable {
      * @see Thread#run()
      */
     public void run() {
-        try {
-            receive();
-        } catch(Exception exception) {
-            System.err.println(exception.getMessage());
-        }
-
+        receive();
     }
 }

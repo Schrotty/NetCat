@@ -1,5 +1,8 @@
 package de.rubenmaurer.netcat.components;
 
+import akka.actor.ActorRef;
+import de.rubenmaurer.netcat.NetCat;
+
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetSocketAddress;
@@ -13,6 +16,9 @@ import java.net.SocketException;
  */
 public class UDPSocket {
 
+    /**
+     * The used datagramSocket
+     */
     private DatagramSocket socket;
 
     /**
@@ -37,14 +43,8 @@ public class UDPSocket {
      * @param address the address
      * @return the created UDP socket
      */
-    public static UDPSocket createSocket(InetSocketAddress address) {
-        try {
-            return new UDPSocket(address);
-        } catch (Exception exception) {
-            System.err.println(exception.getMessage());
-        }
-
-        return null;
+    public static UDPSocket createSocket(InetSocketAddress address) throws SocketException {
+        return new UDPSocket(address);
     }
 
     /**
@@ -60,7 +60,7 @@ public class UDPSocket {
 
             socket.send(new DatagramPacket(payload, payload.length, address));
         } catch (Exception exception) {
-            System.err.println(exception.getMessage());
+            NetCat.getReporter().tell(Message.create("error", exception.getMessage()), ActorRef.noSender());
         }
     }
 
@@ -78,7 +78,7 @@ public class UDPSocket {
         try {
             socket.receive(packet);
 
-            //TODO: Works well... but why?!
+            //TODO: Works well...
             if (address.equals(new InetSocketAddress("-l", address.getPort()))) {
                 address = new InetSocketAddress(packet.getAddress(), packet.getPort());
                 socket.connect(packet.getSocketAddress());

@@ -7,6 +7,7 @@ import de.rubenmaurer.netcat.components.ParameterValidator;
 import de.rubenmaurer.netcat.components.Reporter;
 import de.rubenmaurer.netcat.core.ReaderPrinter;
 import de.rubenmaurer.netcat.core.Transceiver;
+import org.fusesource.jansi.AnsiConsole;
 
 /**
  * An bidirectional Netcat implementation.
@@ -31,51 +32,6 @@ public class NetCat {
      */
     private static ActorRef readerPrinter;
 
-    /**
-     * Main entry point of this application.
-     *
-     * @param params start parameter
-     */
-    public static void main(String[] params) {
-        System.out.println(getStartMessage());
-
-        if (params.length == 2) {
-            int port = ParameterValidator.validatePort(params[1]);
-
-            if (port != -1) {
-                if (!boot(port, params[0])) {
-                    System.out.println(">> boot failed!\nNetcat terminates!");
-                    System.exit(1);
-                }
-
-                return;
-            }
-        }
-
-        System.out.println(getHelpMessage());
-    }
-
-    /**
-     * Print the netcat help message
-     */
-    private static String getHelpMessage() {
-        return "Usage:\tjava -jar Netcat-<version>.jar <hostname> <port>\r\n\tjava -jar Netcat-<version>.jar -l <port>";
-    }
-
-    /**
-     * Print the netcat startup message
-     */
-    private static String getStartMessage() {
-        ManifestHelper mh = ManifestHelper.create();
-
-        return new StringBuilder(String.format("%s v.%s-%s by %s\n",
-                mh.get("Implementation-Title"),
-                mh.get("Implementation-Version"),
-                mh.get("Implementation-Build"),
-                mh.get("Author")
-        )).append(">> Starting actors/ threads...").toString();
-    }
-    
     /**
      * <p>Getter for the field <code>reporter</code>.</p>
      *
@@ -104,7 +60,46 @@ public class NetCat {
     }
 
     /**
-     * Starts all needed actors and checks for failing actors.
+     * Main entry point of this application.
+     *
+     * @param params start parameter
+     */
+    public static void main(String[] params) {
+        AnsiConsole.systemInstall();
+        System.out.println(getStartMessage());
+
+        if (params.length == 2) {
+            int port = ParameterValidator.validatePort(params[1]);
+
+            if (port != -1) {
+                if (!boot(port, params[0])) {
+                    System.out.println(">> boot failed!\nNetcat terminates!");
+                    System.exit(100);
+                }
+
+                return;
+            }
+        }
+
+        System.out.println("Usage:\tjava -jar Netcat.jar <hostname> <port>\r\n\tjava -jar Netcat.jar -l <port>");
+    }
+
+    /**
+     * Print the netcat startup message
+     */
+    private static String getStartMessage() {
+        ManifestHelper mh = ManifestHelper.create();
+
+        return new StringBuilder(String.format("%s v.%s-%s by %s\n",
+                mh.get("Implementation-Title"),
+                mh.get("Implementation-Version"),
+                mh.get("Implementation-Build"),
+                mh.get("Author")
+        )).append(">> Starting actors/ threads...").toString();
+    }
+
+    /**
+     * Starts all needed actors and checks for failed actors.
      *
      * @param port the port to listen to
      * @param host the host to transmit to

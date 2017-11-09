@@ -34,10 +34,15 @@ public class ReaderPrinter extends AbstractActor {
      */
     @Override
     public void preStart() {
-        NetCat.getReporter().tell("starting", getSelf());
+        NetCat.getReporter().tell("online", getSelf());
 
         printer = getContext().actorOf(Props.create(Printer.class), "printer");
         Reader.start();
+    }
+
+    @Override
+    public void postStop() {
+        NetCat.getReporter().tell("offline", getSelf());
     }
 
     /**

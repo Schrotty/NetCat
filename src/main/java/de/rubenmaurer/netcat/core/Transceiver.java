@@ -2,8 +2,10 @@ package de.rubenmaurer.netcat.core;
 
 import akka.actor.AbstractActor;
 import akka.actor.ActorRef;
+import akka.actor.PoisonPill;
 import akka.actor.Props;
 import de.rubenmaurer.netcat.NetCat;
+import de.rubenmaurer.netcat.components.Message;
 import de.rubenmaurer.netcat.components.UDPSocket;
 
 import java.net.InetSocketAddress;
@@ -42,7 +44,21 @@ public class Transceiver extends AbstractActor {
      * @param host a {@link java.lang.String} object.
      */
     public Transceiver(int port, String host) {
-        socket = UDPSocket.createSocket(new InetSocketAddress(host, port));
+        try {
+            socket = UDPSocket.createSocket(new InetSocketAddress(host, port));
+        } catch (Exception exception) {
+            NetCat.getReporter().tell(Message.create("error", exception.getMessage()), getSelf());
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * Gets fired before transceiver starts
+     */
+    @Override
+    public void postStop() {
+        NetCat.getReporter().tell("offline", getSelf());
     }
 
     /**
@@ -52,10 +68,14 @@ public class Transceiver extends AbstractActor {
      */
     @Override
     public void preStart() {
-        NetCat.getReporter().tell("starting", getSelf());
+        NetCat.getReporter().tell("online", getSelf());
 
-        transmitter = getContext().actorOf(Transmitter.getProps(socket), "transmitter");
-        Receiver.start(socket);
+        if (socket != null) {
+            transmitter = getContext().actorOf(Transmitter.getProps(socket), "transmitter");
+            getContext().watch(transmitter);
+
+            Receiver.start(socket);
+        }
     }
 
     /**
@@ -67,6 +87,12 @@ public class Transceiver extends AbstractActor {
     public Receive createReceive() {
         return receiveBuilder()
                 .match(String.class, s -> transmitter.tell(s, getSelf()))
+                .match(Integer.class, s -> {
+                    transmitter.tell("\u0004", getSelf());
+
+                    context().unwatch(transmitter);
+                    transmitter.tell(PoisonPill.getInstance(), getSelf());
+                })
                 .build();
     }
 
