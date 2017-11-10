@@ -1,4 +1,4 @@
-package de.rubenmaurer.netcat.components;
+package de.rubenmaurer.netcat.util;
 
 import java.util.jar.Attributes;
 import java.util.jar.Manifest;
@@ -14,7 +14,7 @@ public class ManifestHelper {
     /**
      * <p>Create new ManifestHelper.</p>
      *
-     * @return a {@link de.rubenmaurer.netcat.components.ManifestHelper} object.
+     * @return a {@link de.rubenmaurer.netcat.util.ManifestHelper} object.
      */
     public static ManifestHelper create() {
         return new ManifestHelper();

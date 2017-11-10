@@ -1,4 +1,4 @@
-package de.rubenmaurer.netcat.components;
+package de.rubenmaurer.netcat.util;
 
 /**
  * Validate the entered port

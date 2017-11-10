@@ -1,7 +1,8 @@
-package de.rubenmaurer.netcat.components;
+package de.rubenmaurer.netcat.core.sockets;
 
 import akka.actor.ActorRef;
-import de.rubenmaurer.netcat.NetCat;
+import de.rubenmaurer.netcat.core.Guardian;
+import de.rubenmaurer.netcat.core.reporter.Report;
 
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
@@ -57,10 +58,9 @@ public class UDPSocket {
 
         try {
             if (address.getAddress() == null) throw new Exception("Missing remote address! Wait for initial transmission!");
-
             socket.send(new DatagramPacket(payload, payload.length, address));
-        } catch (Exception exception) {
-            NetCat.getReporter().tell(Message.create("error", exception.getMessage()), ActorRef.noSender());
+        } catch (Exception e) {
+            Guardian.getReporter().tell(Report.create(Report.Type.ERROR, e.getMessage()), ActorRef.noSender());
         }
     }
 
@@ -75,16 +75,12 @@ public class UDPSocket {
         byte[] payload = new byte[maxBytes];
         DatagramPacket packet = new DatagramPacket(payload, payload.length);
 
-        try {
-            socket.receive(packet);
+        socket.receive(packet);
 
-            //TODO: Works well...
-            if (address.equals(new InetSocketAddress("-l", address.getPort()))) {
-                address = new InetSocketAddress(packet.getAddress(), packet.getPort());
-                socket.connect(packet.getSocketAddress());
-            }
-        } catch (Exception exception) {
-            System.err.println(exception.getMessage());
+        //TODO: Works well...
+        if (address.equals(new InetSocketAddress("-l", address.getPort()))) {
+            address = new InetSocketAddress(packet.getAddress(), packet.getPort());
+            socket.connect(packet.getSocketAddress());
         }
 
         return new String(packet.getData(), 0, packet.getLength());

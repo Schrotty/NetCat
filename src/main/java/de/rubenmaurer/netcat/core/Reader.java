@@ -1,7 +1,6 @@
 package de.rubenmaurer.netcat.core;
 
 import akka.actor.ActorRef;
-import de.rubenmaurer.netcat.NetCat;
 
 import java.util.Scanner;
 
@@ -13,17 +12,21 @@ import java.util.Scanner;
  */
 public class Reader implements Runnable {
 
+    private ActorRef threadWatch;
+
     /**
      * Start the reader.
      */
-    static void start() {
-        new Reader();
+    static void start(ActorRef threadWatch) {
+        new Reader(threadWatch);
     }
 
     /**
      * Create a new Reader
      */
-    private Reader() {
+    private Reader(ActorRef threadWatch) {
+        this.threadWatch = threadWatch;
+
         new Thread(this).start();
     }
 
@@ -33,12 +36,13 @@ public class Reader implements Runnable {
     private void read() {
         try(Scanner scanner = new Scanner(System.in)) {
             while (scanner.hasNextLine()) {
-                NetCat.getTransceiver().tell(scanner.nextLine(), ActorRef.noSender());
+                Guardian.transceiver.tell(scanner.nextLine(), ActorRef.noSender());
             }
         } catch (Exception exception) {
             System.err.println(exception.getMessage());
         } finally {
-            NetCat.getTransceiver().tell(42, ActorRef.noSender());
+            Guardian.transceiver.tell("\u0004", ActorRef.noSender());
+            threadWatch.tell("finish", ActorRef.noSender());
         }
     }
 

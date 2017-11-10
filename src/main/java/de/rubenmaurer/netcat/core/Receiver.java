@@ -1,9 +1,8 @@
 package de.rubenmaurer.netcat.core;
 
 import akka.actor.ActorRef;
-import de.rubenmaurer.netcat.NetCat;
-import de.rubenmaurer.netcat.components.Message;
-import de.rubenmaurer.netcat.components.UDPSocket;
+import de.rubenmaurer.netcat.core.reporter.Report;
+import de.rubenmaurer.netcat.core.sockets.UDPSocket;
 
 /**
  * Receives UDP messages on a given port.
@@ -19,13 +18,15 @@ public class Receiver implements Runnable {
      */
     private UDPSocket socket;
 
+    private ActorRef threadWatch;
+
     /**
      * Start waiting for a UDP-Transmission.
      *
      * @param socket the port to listen to
      */
-    static void start(UDPSocket socket) {
-        new Receiver(socket);
+    static void start(UDPSocket socket, ActorRef threadWatch) {
+        new Receiver(socket, threadWatch);
     }
 
     /**
@@ -33,7 +34,8 @@ public class Receiver implements Runnable {
      *
      * @param socket the port to listen to
      */
-    private Receiver(UDPSocket socket) {
+    private Receiver(UDPSocket socket, ActorRef threadWatch) {
+        this.threadWatch = threadWatch;
         this.socket = socket;
 
         new Thread(this).start();
@@ -49,10 +51,12 @@ public class Receiver implements Runnable {
         try {
             while (!data.equals("\u0004")) {
                 data = socket.receive(1024);
-                NetCat.getReaderPrinter().tell(data, ActorRef.noSender());
+                Guardian.readerPrinter.tell(data, ActorRef.noSender());
             }
         } catch (Exception exception) {
-            NetCat.getReporter().tell(Message.create("error", exception.getMessage()), ActorRef.noSender());
+            Guardian.reporter.tell(Report.create(Report.Type.ERROR, exception.getMessage()), ActorRef.noSender());
+        } finally {
+            threadWatch.tell("finish", ActorRef.noSender());
         }
     }
 

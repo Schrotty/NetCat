@@ -1,9 +1,7 @@
 package de.rubenmaurer.netcat.core;
 
-import akka.actor.AbstractActor;
-import akka.actor.ActorRef;
-import akka.actor.Props;
-import de.rubenmaurer.netcat.NetCat;
+import akka.actor.*;
+import de.rubenmaurer.netcat.core.reporter.Report;
 
 /**
  * A component to read and write on stdout.
@@ -27,22 +25,37 @@ public class ReaderPrinter extends AbstractActor {
         return Props.create(ReaderPrinter.class);
     }
 
+    private void checkFamily() {
+        boolean allDead = true;
+        for (ActorRef each : getContext().getChildren()) {
+            if (!each.isTerminated()) {
+                allDead = false;
+                break;
+            }
+        }
+
+        if (allDead) self().tell(PoisonPill.getInstance(), self());
+    }
+
     /**
      * {@inheritDoc}
-     *
-     * Gets fired before ReaderPrinter starts
      */
     @Override
     public void preStart() {
-        NetCat.getReporter().tell("online", getSelf());
+        Guardian.reporter.tell(Report.create(Report.Type.ONLINE), self());
 
         printer = getContext().actorOf(Props.create(Printer.class), "printer");
-        Reader.start();
+        ActorRef threadWatch = getContext().actorOf(ThreadWatch.getProps(), "reader");
+
+        context().watch(printer);
+        context().watch(threadWatch);
+
+        Reader.start(threadWatch);
     }
 
     @Override
     public void postStop() {
-        NetCat.getReporter().tell("offline", getSelf());
+        Guardian.reporter.tell(Report.create(Report.Type.OFFLINE), self());
     }
 
     /**
@@ -53,7 +66,11 @@ public class ReaderPrinter extends AbstractActor {
      */
     public Receive createReceive() {
         return receiveBuilder()
+                .matchEquals("\u0004", s -> {
+                    printer.tell(PoisonPill.getInstance(), getSelf());
+                })
                 .match(String.class, s -> printer.tell(s, getSelf()))
+                .match(Terminated.class, t -> checkFamily())
                 .build();
     }
 }

@@ -1,8 +1,8 @@
-package de.rubenmaurer.netcat.components;
+package de.rubenmaurer.netcat.core.reporter;
 
 import akka.actor.AbstractActor;
+import akka.actor.ActorRef;
 import akka.actor.Props;
-import de.rubenmaurer.netcat.NetCat;
 
 /**
  * <p>Reporter class.</p>
@@ -30,21 +30,21 @@ public class Reporter extends AbstractActor {
      * Build new message from sender ref ans message string.
      *
      * @param sender the sender name
-     * @param msg the message
+     * @param type the message
      * @return the final message
      */
-    private String messageBuilder(String sender, String msg) {
+    private String messageBuilder(String message, Report.Type type, ActorRef sender) {
         String color = ANSI_BLUE;
 
-        if (msg.equals("online")) {
+        if (type == Report.Type.ONLINE) {
             color = ANSI_GREEN;
         }
 
-        if (msg.equals("offline") || msg.equals("error")) {
+        if (type == Report.Type.OFFLINE || type == Report.Type.ERROR) {
             color = ANSI_RED;
         }
 
-        return String.format("[%s %s %s] %s", color, msg.toUpperCase(), ANSI_RESET, sender);
+        return String.format("[%s %s %s] %s", color, type, ANSI_RESET, message == null ? sender : message);
     }
 
     /**
@@ -61,13 +61,13 @@ public class Reporter extends AbstractActor {
      */
     @Override
     public void postStop() {
-        NetCat.getReporter().tell("offline", getSelf());
+        //self().tell(Report.create(Report.Type.OFFLINE), self());
     }
 
     /** {@inheritDoc} */
     @Override
     public void preStart() {
-        getSelf().tell("online", getSelf());
+        getSelf().tell(Report.create(Report.Type.ONLINE), self());
     }
 
     /**
@@ -78,8 +78,7 @@ public class Reporter extends AbstractActor {
      */
     public AbstractActor.Receive createReceive() {
         return receiveBuilder()
-                .match(String.class, s -> print(messageBuilder(getSender().toString(), s)))
-                .match(Message.class, s -> print(messageBuilder(s.getSender(), s.getMessage())))
+                .match(Report.class, s -> print(messageBuilder(s.getMessage(), s.getType(), sender())))
                 .build();
     }
 }

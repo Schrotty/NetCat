@@ -1,7 +1,7 @@
 package de.rubenmaurer.netcat.core;
 
 import akka.actor.AbstractActor;
-import de.rubenmaurer.netcat.NetCat;
+import de.rubenmaurer.netcat.core.reporter.Report;
 
 /**
  * Receives messages and print them.
@@ -19,7 +19,15 @@ public class Printer extends AbstractActor {
      */
     @Override
     public void preStart() {
-        NetCat.getReporter().tell("online", getSelf());
+        Guardian.reporter.tell(Report.create(Report.Type.ONLINE), self());
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void postStop() {
+        Guardian.reporter.tell(Report.create(Report.Type.OFFLINE), self());
     }
 
     /**

@@ -1,13 +1,14 @@
-package de.rubenmaurer.netcat.components;
+package de.rubenmaurer.netcat.util;
 
+import de.rubenmaurer.netcat.core.reporter.Report;
 import org.junit.Assert;
 
 import java.util.Objects;
 
 /**
- * The type Message test.
+ * The type Report test.
  */
-public class MessageTest {
+public class ReportTest {
 
     /**
      * Gets message.
@@ -16,7 +17,7 @@ public class MessageTest {
      */
     @org.junit.Test
     public void getMessage() throws Exception {
-        Assert.assertTrue(Message.create("Schrottler", "").getMessage().equals("Schrottler"));
+        Assert.assertTrue(Report.create(Report.Type.INFO, "").getType().equals(Report.Type.INFO));
     }
 
     /**
@@ -26,7 +27,7 @@ public class MessageTest {
      */
     @org.junit.Test
     public void create() throws Exception {
-        Assert.assertTrue(!Objects.equals(Message.create("", ""), null));
+        Assert.assertTrue(!Objects.equals(Report.create(Report.Type.INFO, ""), null));
     }
 
 }

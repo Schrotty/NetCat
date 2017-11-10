@@ -1,12 +1,9 @@
 package de.rubenmaurer.netcat;
 
-import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
-import de.rubenmaurer.netcat.components.ManifestHelper;
-import de.rubenmaurer.netcat.components.ParameterValidator;
-import de.rubenmaurer.netcat.components.Reporter;
-import de.rubenmaurer.netcat.core.ReaderPrinter;
-import de.rubenmaurer.netcat.core.Transceiver;
+import de.rubenmaurer.netcat.core.Guardian;
+import de.rubenmaurer.netcat.util.ManifestHelper;
+import de.rubenmaurer.netcat.util.ParameterValidator;
 import org.fusesource.jansi.AnsiConsole;
 
 /**
@@ -16,48 +13,6 @@ import org.fusesource.jansi.AnsiConsole;
  * @version 1.0
  */
 public class NetCat {
-
-    /**
-     * Reporter reference.
-     */
-    private static ActorRef reporter;
-
-    /**
-     * Transceiver reference.
-     */
-    private static ActorRef transceiver;
-
-    /**
-     * ReaderPrinter reference.
-     */
-    private static ActorRef readerPrinter;
-
-    /**
-     * <p>Getter for the field <code>reporter</code>.</p>
-     *
-     * @return a {@link akka.actor.ActorRef} object.
-     */
-    public static ActorRef getReporter() {
-        return reporter;
-    }
-
-    /**
-     * <p>Getter for the field <code>transceiver</code>.</p>
-     *
-     * @return a {@link akka.actor.ActorRef} object.
-     */
-    public static ActorRef getTransceiver() {
-        return transceiver;
-    }
-
-    /**
-     * <p>Getter for the field <code>readerPrinter</code>.</p>
-     *
-     * @return a {@link akka.actor.ActorRef} object.
-     */
-    public static ActorRef getReaderPrinter() {
-        return readerPrinter;
-    }
 
     /**
      * Main entry point of this application.
@@ -72,11 +27,8 @@ public class NetCat {
             int port = ParameterValidator.validatePort(params[1]);
 
             if (port != -1) {
-                if (!boot(port, params[0])) {
-                    System.out.println(">> boot failed!\nNetcat terminates!");
-                    System.exit(100);
-                }
-
+                ActorSystem actorSystem = ActorSystem.apply("netcat");
+                actorSystem.actorOf(Guardian.getProps(port, params[0]), "guardian");
                 return;
             }
         }
@@ -96,25 +48,5 @@ public class NetCat {
                 mh.get("Implementation-Build"),
                 mh.get("Author")
         )).append(">> Starting actors/ threads...").toString();
-    }
-
-    /**
-     * Starts all needed actors and checks for failed actors.
-     *
-     * @param port the port to listen to
-     * @param host the host to transmit to
-     * @return if boot was a success
-     */
-    private static boolean boot(int port, String host) {
-        ActorSystem actorSystem = ActorSystem.apply("root");
-
-        //start reporter actor
-        reporter = actorSystem.actorOf(Reporter.getProps(), "reporter");
-
-        //start main components
-        transceiver = actorSystem.actorOf(Transceiver.getProps(port, host), "transceiver");
-        readerPrinter = actorSystem.actorOf(ReaderPrinter.getProps(), "readerPrinter");
-
-        return !reporter.isTerminated() && !transceiver.isTerminated() && !readerPrinter.isTerminated();
     }
 }

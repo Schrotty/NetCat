@@ -2,8 +2,8 @@ package de.rubenmaurer.netcat.core;
 
 import akka.actor.AbstractActor;
 import akka.actor.Props;
-import de.rubenmaurer.netcat.NetCat;
-import de.rubenmaurer.netcat.components.UDPSocket;
+import de.rubenmaurer.netcat.core.reporter.Report;
+import de.rubenmaurer.netcat.core.sockets.UDPSocket;
 
 /**
  * Transmit message using UDP.
@@ -21,7 +21,7 @@ public class Transmitter extends AbstractActor {
     /**
      * <p>Constructor for Transmitter.</p>
      *
-     * @param udpSocket a {@link de.rubenmaurer.netcat.components.UDPSocket} object.
+     * @param udpSocket a {@link UDPSocket} object.
      */
     public Transmitter(UDPSocket udpSocket) {
         socket = udpSocket;
@@ -30,7 +30,7 @@ public class Transmitter extends AbstractActor {
     /**
      * <p>getProps.</p>
      *
-     * @param socket a {@link de.rubenmaurer.netcat.components.UDPSocket} object.
+     * @param socket a {@link UDPSocket} object.
      * @return a {@link akka.actor.Props} object.
      */
     public static Props getProps(UDPSocket socket) {
@@ -40,13 +40,13 @@ public class Transmitter extends AbstractActor {
     /** {@inheritDoc} */
     @Override
     public void preStart() {
-        NetCat.getReporter().tell("online", getSelf());
+        Guardian.reporter.tell(Report.create(Report.Type.ONLINE), self());
     }
 
     /** {@inheritDoc} */
     @Override
     public void postStop() {
-        NetCat.getReporter().tell("offline", getSelf());
+        Guardian.reporter.tell(Report.create(Report.Type.OFFLINE), self());
     }
 
     /**

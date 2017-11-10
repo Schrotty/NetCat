@@ -1,12 +1,8 @@
 package de.rubenmaurer.netcat.core;
 
-import akka.actor.AbstractActor;
-import akka.actor.ActorRef;
-import akka.actor.PoisonPill;
-import akka.actor.Props;
-import de.rubenmaurer.netcat.NetCat;
-import de.rubenmaurer.netcat.components.Message;
-import de.rubenmaurer.netcat.components.UDPSocket;
+import akka.actor.*;
+import de.rubenmaurer.netcat.core.reporter.Report;
+import de.rubenmaurer.netcat.core.sockets.UDPSocket;
 
 import java.net.InetSocketAddress;
 
@@ -47,7 +43,7 @@ public class Transceiver extends AbstractActor {
         try {
             socket = UDPSocket.createSocket(new InetSocketAddress(host, port));
         } catch (Exception exception) {
-            NetCat.getReporter().tell(Message.create("error", exception.getMessage()), getSelf());
+            Guardian.reporter.tell(Report.create(Report.Type.ERROR, exception.getMessage()), getSelf());
         }
     }
 
@@ -58,7 +54,7 @@ public class Transceiver extends AbstractActor {
      */
     @Override
     public void postStop() {
-        NetCat.getReporter().tell("offline", getSelf());
+        Guardian.reporter.tell(Report.create(Report.Type.OFFLINE), self());
     }
 
     /**
@@ -68,14 +64,29 @@ public class Transceiver extends AbstractActor {
      */
     @Override
     public void preStart() {
-        NetCat.getReporter().tell("online", getSelf());
+        Guardian.reporter.tell(Report.create(Report.Type.ONLINE), self());
 
         if (socket != null) {
             transmitter = getContext().actorOf(Transmitter.getProps(socket), "transmitter");
-            getContext().watch(transmitter);
+            ActorRef threadWatch = getContext().actorOf(ThreadWatch.getProps(), "receiver");
 
-            Receiver.start(socket);
+            context().watch(transmitter);
+            context().watch(threadWatch);
+
+            Receiver.start(socket, threadWatch);
         }
+    }
+
+    private void checkFamily() {
+        boolean allDead = true;
+        for (ActorRef each : getContext().getChildren()) {
+            if (!each.isTerminated()) {
+                allDead = false;
+                break;
+            }
+        }
+
+        if (allDead) self().tell(PoisonPill.getInstance(), self());
     }
 
     /**
@@ -86,13 +97,12 @@ public class Transceiver extends AbstractActor {
      */
     public Receive createReceive() {
         return receiveBuilder()
-                .match(String.class, s -> transmitter.tell(s, getSelf()))
-                .match(Integer.class, s -> {
-                    transmitter.tell("\u0004", getSelf());
-
-                    context().unwatch(transmitter);
-                    transmitter.tell(PoisonPill.getInstance(), getSelf());
+                .matchEquals("\u0004", s -> {
+                    transmitter.tell(s, self());
+                    transmitter.tell(PoisonPill.getInstance(), self());
                 })
+                .match(String.class, s -> transmitter.tell(s, self()))
+                .match(Terminated.class, t -> checkFamily())
                 .build();
     }
 
