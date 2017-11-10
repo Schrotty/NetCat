@@ -135,13 +135,16 @@
                             <addClasspath>true</addClasspath>
                             <classpathPrefix>lib/</classpathPrefix>
                             <mainClass>de.rubenmaurer.netcat.NetCat</mainClass>
+                            <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+                            <addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
                         </manifest>
+
                         <manifestEntries>
                             <Class-Path>.</Class-Path>
                             <Implementation-Title>${project.name}</Implementation-Title>
-                            <Implementation-Version>${project.version}</Implementation-Version>
+                            <Implementation-Version>${project.version}-${buildNumber}</Implementation-Version>
                             <Implementation-Build>${buildNumber}</Implementation-Build>
-                            <Author>Ruben 'Schrotty' Maurer</Author>
+                            <Implementation-Vendor>Ruben 'Schrotty' Maurer</Implementation-Vendor>
                         </manifestEntries>
                     </archive>
 

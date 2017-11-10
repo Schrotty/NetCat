@@ -1,8 +1,8 @@
 package de.rubenmaurer.netcat.core;
 
 import akka.actor.ActorRef;
+import de.rubenmaurer.netcat.core.interfaces.AbstractSocket;
 import de.rubenmaurer.netcat.core.reporter.Report;
-import de.rubenmaurer.netcat.core.sockets.UDPSocket;
 
 /**
  * Receives UDP messages on a given port.
@@ -16,7 +16,7 @@ public class Receiver implements Runnable {
     /**
      * The udp socket used for transmission
      */
-    private UDPSocket socket;
+    private AbstractSocket socket;
 
     private ActorRef threadWatch;
 
@@ -25,7 +25,7 @@ public class Receiver implements Runnable {
      *
      * @param socket the port to listen to
      */
-    static void start(UDPSocket socket, ActorRef threadWatch) {
+    static void start(AbstractSocket socket, ActorRef threadWatch) {
         new Receiver(socket, threadWatch);
     }
 
@@ -34,7 +34,7 @@ public class Receiver implements Runnable {
      *
      * @param socket the port to listen to
      */
-    private Receiver(UDPSocket socket, ActorRef threadWatch) {
+    private Receiver(AbstractSocket socket, ActorRef threadWatch) {
         this.threadWatch = threadWatch;
         this.socket = socket;
 

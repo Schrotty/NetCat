@@ -3,7 +3,9 @@ package de.rubenmaurer.netcat.core.sockets;
 import akka.actor.ActorRef;
 import de.rubenmaurer.netcat.core.Guardian;
 import de.rubenmaurer.netcat.core.reporter.Report;
+import de.rubenmaurer.netcat.core.interfaces.*;
 
+import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetSocketAddress;
@@ -15,7 +17,7 @@ import java.net.SocketException;
  * @author Ruben 'Schrotty' Maurer
  * @version 1.0
  */
-public class UDPSocket {
+public class UDPSocket implements AbstractSocket {
 
     /**
      * The used datagramSocket
@@ -69,18 +71,21 @@ public class UDPSocket {
      *
      * @param maxBytes the max length of the transmission
      * @return the transmission as string
-     * @throws java.lang.Exception if any.
      */
-    public String receive(int maxBytes) throws Exception {
+    public String receive(int maxBytes) {
         byte[] payload = new byte[maxBytes];
         DatagramPacket packet = new DatagramPacket(payload, payload.length);
 
-        socket.receive(packet);
+        try {
+            socket.receive(packet);
 
-        //TODO: Works well...
-        if (address.equals(new InetSocketAddress("-l", address.getPort()))) {
-            address = new InetSocketAddress(packet.getAddress(), packet.getPort());
-            socket.connect(packet.getSocketAddress());
+            //TODO: Works well...
+            if (address.equals(new InetSocketAddress("-l", address.getPort()))) {
+                address = new InetSocketAddress(packet.getAddress(), packet.getPort());
+                socket.connect(packet.getSocketAddress());
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
         }
 
         return new String(packet.getData(), 0, packet.getLength());

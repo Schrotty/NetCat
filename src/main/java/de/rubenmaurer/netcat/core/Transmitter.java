@@ -2,6 +2,7 @@ package de.rubenmaurer.netcat.core;
 
 import akka.actor.AbstractActor;
 import akka.actor.Props;
+import de.rubenmaurer.netcat.core.interfaces.AbstractSocket;
 import de.rubenmaurer.netcat.core.reporter.Report;
 import de.rubenmaurer.netcat.core.sockets.UDPSocket;
 
@@ -33,7 +34,7 @@ public class Transmitter extends AbstractActor {
      * @param socket a {@link UDPSocket} object.
      * @return a {@link akka.actor.Props} object.
      */
-    public static Props getProps(UDPSocket socket) {
+    public static Props getProps(AbstractSocket socket) {
         return Props.create(Transmitter.class, socket);
     }
 

@@ -1,6 +1,7 @@
 package de.rubenmaurer.netcat.core;
 
 import akka.actor.*;
+import de.rubenmaurer.netcat.core.interfaces.AbstractSocket;
 import de.rubenmaurer.netcat.core.reporter.Report;
 import de.rubenmaurer.netcat.core.sockets.UDPSocket;
 
@@ -22,7 +23,7 @@ public class Transceiver extends AbstractActor {
     /**
      * Socket for transmitter and receiver
      */
-    private UDPSocket socket;
+    private AbstractSocket socket;
 
     /**
      * Get the transmitter

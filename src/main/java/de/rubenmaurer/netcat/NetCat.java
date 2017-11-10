@@ -2,7 +2,6 @@ package de.rubenmaurer.netcat;
 
 import akka.actor.ActorSystem;
 import de.rubenmaurer.netcat.core.Guardian;
-import de.rubenmaurer.netcat.util.ManifestHelper;
 import de.rubenmaurer.netcat.util.ParameterValidator;
 import org.fusesource.jansi.AnsiConsole;
 
@@ -40,13 +39,10 @@ public class NetCat {
      * Print the netcat startup message
      */
     private static String getStartMessage() {
-        ManifestHelper mh = ManifestHelper.create();
-
-        return new StringBuilder(String.format("%s v.%s-%s by %s\n",
-                mh.get("Implementation-Title"),
-                mh.get("Implementation-Version"),
-                mh.get("Implementation-Build"),
-                mh.get("Author")
+        return new StringBuilder(String.format("%s v.%s by %s\n",
+                NetCat.class.getPackage().getImplementationTitle(),
+                NetCat.class.getPackage().getImplementationVersion(),
+                NetCat.class.getPackage().getImplementationVendor()
         )).append(">> Starting actors/ threads...").toString();
     }
 }
