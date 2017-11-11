@@ -37,9 +37,7 @@ public class ReaderPrinter extends AbstractActor {
         if (allDead) self().tell(PoisonPill.getInstance(), self());
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public void preStart() {
         Guardian.reporter.tell(Report.create(Report.Type.ONLINE), self());
@@ -53,6 +51,7 @@ public class ReaderPrinter extends AbstractActor {
         Reader.start(threadWatch);
     }
 
+    /** {@inheritDoc} */
     @Override
     public void postStop() {
         Guardian.reporter.tell(Report.create(Report.Type.OFFLINE), self());
@@ -71,6 +70,7 @@ public class ReaderPrinter extends AbstractActor {
                 })
                 .match(String.class, s -> printer.tell(s, getSelf()))
                 .match(Terminated.class, t -> checkFamily())
+                .matchEquals(Notice.FINISH, s-> context().parent().tell(Notice.FINISH, self()))
                 .build();
     }
 }

@@ -18,6 +18,9 @@ public class Receiver implements Runnable {
      */
     private AbstractSocket socket;
 
+    /**
+     *
+     */
     private ActorRef threadWatch;
 
     /**
@@ -56,7 +59,7 @@ public class Receiver implements Runnable {
         } catch (Exception exception) {
             Guardian.reporter.tell(Report.create(Report.Type.ERROR, exception.getMessage()), ActorRef.noSender());
         } finally {
-            threadWatch.tell("finish", ActorRef.noSender());
+            threadWatch.tell(Notice.FINISH, ActorRef.noSender());
         }
     }
 

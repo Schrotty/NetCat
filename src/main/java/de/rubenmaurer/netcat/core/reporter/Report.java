@@ -12,7 +12,7 @@ public class Report {
         INFO,
         ERROR,
         ONLINE,
-        OFFLINE
+        NONE, OFFLINE
     }
 
     /**

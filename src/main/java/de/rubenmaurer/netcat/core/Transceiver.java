@@ -104,6 +104,7 @@ public class Transceiver extends AbstractActor {
                 })
                 .match(String.class, s -> transmitter.tell(s, self()))
                 .match(Terminated.class, t -> checkFamily())
+                .matchEquals(Notice.FINISH, s-> context().parent().tell(Notice.FINISH, self()))
                 .build();
     }
 

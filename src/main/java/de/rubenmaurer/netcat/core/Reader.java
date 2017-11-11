@@ -42,7 +42,7 @@ public class Reader implements Runnable {
             System.err.println(exception.getMessage());
         } finally {
             Guardian.transceiver.tell("\u0004", ActorRef.noSender());
-            threadWatch.tell("finish", ActorRef.noSender());
+            threadWatch.tell(Notice.FINISH, ActorRef.noSender());
         }
     }
 

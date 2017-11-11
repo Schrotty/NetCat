@@ -22,7 +22,7 @@ public class Transmitter extends AbstractActor {
     /**
      * <p>Constructor for Transmitter.</p>
      *
-     * @param udpSocket a {@link UDPSocket} object.
+     * @param udpSocket a {@link de.rubenmaurer.netcat.core.sockets.UDPSocket} object.
      */
     public Transmitter(UDPSocket udpSocket) {
         socket = udpSocket;
@@ -31,7 +31,7 @@ public class Transmitter extends AbstractActor {
     /**
      * <p>getProps.</p>
      *
-     * @param socket a {@link UDPSocket} object.
+     * @param socket a {@link de.rubenmaurer.netcat.core.sockets.UDPSocket} object.
      * @return a {@link akka.actor.Props} object.
      */
     public static Props getProps(AbstractSocket socket) {
@@ -42,6 +42,7 @@ public class Transmitter extends AbstractActor {
     @Override
     public void preStart() {
         Guardian.reporter.tell(Report.create(Report.Type.ONLINE), self());
+        context().parent().tell(Notice.FINISH, self());
     }
 
     /** {@inheritDoc} */

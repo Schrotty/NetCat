@@ -20,11 +20,10 @@ public class Printer extends AbstractActor {
     @Override
     public void preStart() {
         Guardian.reporter.tell(Report.create(Report.Type.ONLINE), self());
+        context().parent().tell(Notice.FINISH, self());
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public void postStop() {
         Guardian.reporter.tell(Report.create(Report.Type.OFFLINE), self());

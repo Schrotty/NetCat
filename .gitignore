@@ -32,3 +32,5 @@ gen
 dependency-reduced-pom.xml
 target/
 /buildNumber.properties
+/pom.xml.releaseBackup
+/release.properties

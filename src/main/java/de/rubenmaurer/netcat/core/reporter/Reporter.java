@@ -35,6 +35,7 @@ public class Reporter extends AbstractActor {
      */
     private String messageBuilder(String message, Report.Type type, ActorRef sender) {
         String color = ANSI_BLUE;
+        String msgType;
 
         if (type == Report.Type.ONLINE) {
             color = ANSI_GREEN;
@@ -44,7 +45,8 @@ public class Reporter extends AbstractActor {
             color = ANSI_RED;
         }
 
-        return String.format("[%s %s %s] %s", color, type, ANSI_RESET, message == null ? sender : message);
+        msgType = String.format("[%s %s %s]", color, type, ANSI_RESET);
+        return String.format("%s %s", type == Report.Type.NONE ? "" : msgType, message == null ? sender : message);
     }
 
     /**
@@ -55,21 +57,7 @@ public class Reporter extends AbstractActor {
     private void print(String message) {
         System.out.println(String.format(">> %s", message));
     }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void postStop() {
-        //self().tell(Report.create(Report.Type.OFFLINE), self());
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public void preStart() {
-        getSelf().tell(Report.create(Report.Type.ONLINE), self());
-    }
-
+    
     /**
      * Receives a message an process it.
      * After processing the actor stops itself.

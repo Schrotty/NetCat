@@ -20,7 +20,6 @@ public class NetCat {
      */
     public static void main(String[] params) {
         AnsiConsole.systemInstall();
-        System.out.println(getStartMessage());
 
         if (params.length == 2) {
             int port = ParameterValidator.validatePort(params[1]);
@@ -33,16 +32,5 @@ public class NetCat {
         }
 
         System.out.println("Usage:\tjava -jar Netcat.jar <hostname> <port>\r\n\tjava -jar Netcat.jar -l <port>");
-    }
-
-    /**
-     * Print the netcat startup message
-     */
-    private static String getStartMessage() {
-        return new StringBuilder(String.format("%s v.%s by %s\n",
-                NetCat.class.getPackage().getImplementationTitle(),
-                NetCat.class.getPackage().getImplementationVersion(),
-                NetCat.class.getPackage().getImplementationVendor()
-        )).append(">> Starting actors/ threads...").toString();
     }
 }

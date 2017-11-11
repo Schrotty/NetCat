@@ -45,15 +45,16 @@ public class UDPSocket implements AbstractSocket {
      *
      * @param address the address
      * @return the created UDP socket
+     * @throws java.net.SocketException if any.
      */
     public static UDPSocket createSocket(InetSocketAddress address) throws SocketException {
         return new UDPSocket(address);
     }
 
     /**
-     * Send a given message.
+     * {@inheritDoc}
      *
-     * @param message the message to send
+     * Send a given message.
      */
     public void send(String message) {
         byte[] payload = message.getBytes();
@@ -67,10 +68,9 @@ public class UDPSocket implements AbstractSocket {
     }
 
     /**
-     * Receive a UDP-Transmission
+     * {@inheritDoc}
      *
-     * @param maxBytes the max length of the transmission
-     * @return the transmission as string
+     * Receive a UDP-Transmission
      */
     public String receive(int maxBytes) {
         byte[] payload = new byte[maxBytes];
