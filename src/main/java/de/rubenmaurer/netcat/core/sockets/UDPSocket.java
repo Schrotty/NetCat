@@ -16,6 +16,7 @@ import java.net.SocketException;
  *
  * @author Ruben 'Schrotty' Maurer
  * @version 1.0
+ * @since 1.0
  */
 public class UDPSocket implements AbstractSocket {
 

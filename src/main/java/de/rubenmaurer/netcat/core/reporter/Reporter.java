@@ -5,20 +5,35 @@ import akka.actor.ActorRef;
 import akka.actor.Props;
 
 /**
- * <p>Reporter class.</p>
+ * Reporter actor for system output.
  *
- * @author ruben
+ * @author Ruben 'Schrotty' Maurer
  * @version $Id: $Id
  */
 public class Reporter extends AbstractActor {
 
+    /**
+     * ANSI reset code.
+     */
     private static final String ANSI_RESET = "\u001B[0m";
+
+    /**
+     * ANSI code for red.
+     */
     private static final String ANSI_RED = "\u001B[31m";
+
+    /**
+     * ANSI code for green.
+     */
     private static final String ANSI_GREEN = "\u001B[32m";
+
+    /**
+     * ANSI code for blue.
+     */
     private static final String ANSI_BLUE = "\u001B[34m";
 
     /**
-     * <p>getProps.</p>
+     * Get properties for a new actor.
      *
      * @return a {@link akka.actor.Props} object.
      */
@@ -29,8 +44,9 @@ public class Reporter extends AbstractActor {
     /**
      * Build new message from sender ref ans message string.
      *
-     * @param sender the sender name
-     * @param type the message
+     * @param message the message to print
+     * @param type the report type
+     * @param sender the report sender
      * @return the final message
      */
     private String messageBuilder(String message, Report.Type type, ActorRef sender) {
@@ -60,7 +76,6 @@ public class Reporter extends AbstractActor {
     
     /**
      * Receives a message an process it.
-     * After processing the actor stops itself.
      *
      * @return a Receive object
      */

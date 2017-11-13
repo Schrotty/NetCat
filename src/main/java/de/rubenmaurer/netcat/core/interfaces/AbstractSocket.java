@@ -1,24 +1,24 @@
 package de.rubenmaurer.netcat.core.interfaces;
 
 /**
- * <p>AbstractSocket interface.</p>
+ * The abstract socket interface
  *
- * @author ruben
+ * @author Ruben 'Schrotty' Maurer
  * @version $Id: $Id
  */
 public interface AbstractSocket {
     /**
-     * <p>receive.</p>
+     * Wait for receiving a message.
      *
-     * @param maxBytes a int.
+     * @param maxBytes max bytes of the incoming message
      * @return a {@link java.lang.String} object.
      */
     String receive(int maxBytes);
 
     /**
-     * <p>send.</p>
+     * Send a given message.
      *
-     * @param message a {@link java.lang.String} object.
+     * @param message the given message
      */
     void send(String message);
 }

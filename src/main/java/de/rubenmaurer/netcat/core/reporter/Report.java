@@ -1,7 +1,7 @@
 package de.rubenmaurer.netcat.core.reporter;
 
 /**
- * The type Report.
+ * Report type for the {@link Reporter} class.
  *
  * @author Ruben 'Schrotty' Maurer
  * @version $Id: $Id
@@ -12,21 +12,22 @@ public class Report {
         INFO,
         ERROR,
         ONLINE,
-        NONE, OFFLINE
+        NONE,
+        OFFLINE
     }
 
     /**
-     * The Report.
+     * The Report type.
      */
     private Type type;
 
     /**
-     * The sender name.
+     * Name of the sender.
      */
     private String message;
 
     /**
-     * Gets type.
+     * Gets report type.
      *
      * @return the message
      */
@@ -35,7 +36,7 @@ public class Report {
     }
 
     /**
-     * Gets message.
+     * Gets report message.
      *
      * @return the sender
      */
@@ -44,7 +45,7 @@ public class Report {
     }
 
     /**
-     * Create message.
+     * Create new message.
      *
      * @param type the msg
      * @param message the sender name
@@ -55,7 +56,7 @@ public class Report {
     }
 
     /**
-     * Create message.
+     * Create new message.
      *
      * @param type the msg
      * @return the message

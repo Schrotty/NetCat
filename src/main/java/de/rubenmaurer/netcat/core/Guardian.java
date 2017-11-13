@@ -6,15 +6,21 @@ import de.rubenmaurer.netcat.core.reporter.Report;
 import de.rubenmaurer.netcat.core.reporter.Reporter;
 
 /**
- * <p>Guardian class.</p>
+ * Guardian actor for managing.
  *
- * @author ruben
+ * @author Ruben 'Schrotty' Maurer
  * @version $Id: $Id
  */
 public class Guardian extends AbstractActor {
 
+    /**
+     * Subsystem count
+     */
     private final static int SUBSYS = 4;
 
+    /**
+     * Loaded subsystems
+     */
     private int finSubs = 0;
 
     /**
@@ -32,7 +38,14 @@ public class Guardian extends AbstractActor {
      */
     static ActorRef readerPrinter;
 
+    /**
+     * The host to "connect" to
+     */
     private String hostname;
+
+    /**
+     * The port to send on
+     */
     private int port;
 
     /**
@@ -55,6 +68,9 @@ public class Guardian extends AbstractActor {
         this.hostname = hostname;
     }
 
+    /**
+     * Look after his children. If they are all dead then commit suicide.
+     */
     private void checkFamily() {
         boolean allDead = true;
         for (ActorRef each : getContext().getChildren()) {
@@ -72,7 +88,10 @@ public class Guardian extends AbstractActor {
         }
     }
 
-    private void checkloadingSubs() {
+    /**
+     * Checks finished sub systems.
+     */
+    private void checkLoadingSubs() {
         if (finSubs == SUBSYS) {
             reporter.tell(Report.create(Report.Type.NONE, ""), self());
             reporter.tell(Report.create(Report.Type.INFO, "System started!"), self());
@@ -123,7 +142,7 @@ public class Guardian extends AbstractActor {
                 .match(Terminated.class, t -> checkFamily())
                 .matchEquals(Notice.FINISH, s-> {
                     finSubs++;
-                    checkloadingSubs();
+                    checkLoadingSubs();
                 })
                 .build();
     }

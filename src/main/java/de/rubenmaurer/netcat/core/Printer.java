@@ -7,7 +7,7 @@ import de.rubenmaurer.netcat.core.reporter.Report;
  * Receives messages and print them.
  *
  * @author Ruben 'Schrotty' Maurer
- * @version $Id: $Id
+ * @version ${buildNumber}
  * @since 1.0
  */
 public class Printer extends AbstractActor {
