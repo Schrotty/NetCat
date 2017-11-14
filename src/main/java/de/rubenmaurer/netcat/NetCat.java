@@ -14,6 +14,11 @@ import org.fusesource.jansi.AnsiConsole;
 public class NetCat {
 
     /**
+     * Silent mode active?
+     */
+    private static boolean isSilent = false;
+
+    /**
      * Main entry point of this application.
      *
      * @param params start parameter
@@ -21,8 +26,10 @@ public class NetCat {
     public static void main(String[] params) {
         AnsiConsole.systemInstall();
 
-        if (params.length == 2) {
+        if (params.length >= 2) {
             int port = ParameterValidator.validatePort(params[1]);
+            if (params.length >= 3 && params[2].equals("-s")) isSilent = true;
+
 
             if (port != -1) {
                 ActorSystem actorSystem = ActorSystem.apply("netcat");
@@ -32,5 +39,14 @@ public class NetCat {
         }
 
         System.out.println("Usage:\tjava -jar Netcat.jar <hostname> <port>\r\n\tjava -jar Netcat.jar -l <port>");
+    }
+
+    /**
+     * Is netcat in silent mode?
+     *
+     * @return is in silent mode?
+     */
+    public static boolean runsSilent() {
+        return isSilent;
     }
 }

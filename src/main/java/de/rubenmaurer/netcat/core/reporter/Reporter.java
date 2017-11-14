@@ -3,6 +3,7 @@ package de.rubenmaurer.netcat.core.reporter;
 import akka.actor.AbstractActor;
 import akka.actor.ActorRef;
 import akka.actor.Props;
+import de.rubenmaurer.netcat.NetCat;
 
 /**
  * Reporter actor for system output.
@@ -71,7 +72,7 @@ public class Reporter extends AbstractActor {
      * @param message the message to print
      */
     private void print(String message) {
-        System.out.println(String.format(">> %s", message));
+        if (!NetCat.runsSilent()) System.out.println(String.format(">> %s", message));
     }
     
     /**
