@@ -4,7 +4,6 @@ import akka.actor.AbstractActor;
 import akka.actor.Props;
 import de.rubenmaurer.netcat.core.interfaces.AbstractSocket;
 import de.rubenmaurer.netcat.core.reporter.Report;
-import de.rubenmaurer.netcat.core.sockets.UDPSocket;
 
 /**
  * Transmit message using UDP.
@@ -17,14 +16,14 @@ public class Transmitter extends AbstractActor {
     /**
      * The used udp socket
      */
-    private UDPSocket socket;
+    private AbstractSocket socket;
 
     /**
      * <p>Constructor for Transmitter.</p>
      *
-     * @param udpSocket a {@link de.rubenmaurer.netcat.core.sockets.UDPSocket} object.
+     * @param udpSocket a {@link de.rubenmaurer.netcat.core.interfaces.AbstractSocket} object.
      */
-    public Transmitter(UDPSocket udpSocket) {
+    public Transmitter(AbstractSocket udpSocket) {
         socket = udpSocket;
     }
 

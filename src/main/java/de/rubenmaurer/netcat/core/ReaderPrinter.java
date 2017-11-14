@@ -1,6 +1,7 @@
 package de.rubenmaurer.netcat.core;
 
 import akka.actor.*;
+import de.rubenmaurer.netcat.NetCat;
 import de.rubenmaurer.netcat.core.reporter.Report;
 
 /**
@@ -40,15 +41,20 @@ public class ReaderPrinter extends AbstractActor {
     /** {@inheritDoc} */
     @Override
     public void preStart() {
+        ActorRef threadWatch;
+
         Guardian.reporter.tell(Report.create(Report.Type.ONLINE), self());
 
-        printer = getContext().actorOf(Props.create(Printer.class), "printer");
-        ActorRef threadWatch = getContext().actorOf(ThreadWatch.getProps(), "reader");
+        if (NetCat.isBidirectional() || !NetCat.isClient()) {
+            printer = getContext().actorOf(Props.create(Printer.class), "printer");
+            context().watch(printer);
+        }
 
-        context().watch(printer);
-        context().watch(threadWatch);
-
-        Reader.start(threadWatch);
+        if (NetCat.isClient() || NetCat.isBidirectional()) {
+            threadWatch = getContext().actorOf(ThreadWatch.getProps(), "reader");
+            context().watch(threadWatch);
+            Reader.start(threadWatch);
+        }
     }
 
     /** {@inheritDoc} */

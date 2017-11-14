@@ -1,6 +1,7 @@
 package de.rubenmaurer.netcat.core.sockets;
 
 import akka.actor.ActorRef;
+import de.rubenmaurer.netcat.NetCat;
 import de.rubenmaurer.netcat.core.Guardian;
 import de.rubenmaurer.netcat.core.reporter.Report;
 import de.rubenmaurer.netcat.core.interfaces.*;
@@ -38,7 +39,7 @@ public class UDPSocket implements AbstractSocket {
      */
     private UDPSocket(InetSocketAddress address) throws SocketException {
         this.address = address;
-        this.socket = new DatagramSocket(address.getPort());
+        this.socket = new DatagramSocket(NetCat.isClient() ? 0 : address.getPort());
     }
 
     /**

@@ -1,8 +1,10 @@
 package de.rubenmaurer.netcat.core;
 
 import akka.actor.*;
+import de.rubenmaurer.netcat.NetCat;
 import de.rubenmaurer.netcat.core.interfaces.AbstractSocket;
 import de.rubenmaurer.netcat.core.reporter.Report;
+import de.rubenmaurer.netcat.core.sockets.TCPSocket;
 import de.rubenmaurer.netcat.core.sockets.UDPSocket;
 
 import java.net.InetSocketAddress;
@@ -42,6 +44,11 @@ public class Transceiver extends AbstractActor {
      */
     public Transceiver(int port, String host) {
         try {
+            if (NetCat.isTCP()) {
+                socket = TCPSocket.createSocket(host, port);
+                return;
+            }
+
             socket = UDPSocket.createSocket(new InetSocketAddress(host, port));
         } catch (Exception exception) {
             Guardian.reporter.tell(Report.create(Report.Type.ERROR, exception.getMessage()), getSelf());
@@ -65,16 +72,21 @@ public class Transceiver extends AbstractActor {
      */
     @Override
     public void preStart() {
+        ActorRef threadWatch;
+
         Guardian.reporter.tell(Report.create(Report.Type.ONLINE), self());
 
         if (socket != null) {
-            transmitter = getContext().actorOf(Transmitter.getProps(socket), "transmitter");
-            ActorRef threadWatch = getContext().actorOf(ThreadWatch.getProps(), "receiver");
+            if (NetCat.isBidirectional() || !NetCat.isClient()) {
+                threadWatch = getContext().actorOf(ThreadWatch.getProps(), "receiver");
+                context().watch(threadWatch);
+                Receiver.start(socket, threadWatch);
+            }
 
-            context().watch(transmitter);
-            context().watch(threadWatch);
-
-            Receiver.start(socket, threadWatch);
+            if (NetCat.isClient() || NetCat.isBidirectional()) {
+                transmitter = getContext().actorOf(Transmitter.getProps(socket), "transmitter");
+                context().watch(transmitter);
+            }
         }
     }
 
