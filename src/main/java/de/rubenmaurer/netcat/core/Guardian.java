@@ -14,11 +14,6 @@ import de.rubenmaurer.netcat.core.reporter.Reporter;
 public class Guardian extends AbstractActor {
 
     /**
-     * Subsystem count
-     */
-    private final static int SUBSYS = 4;
-
-    /**
      * Loaded subsystems
      */
     private int finSubs = 0;
@@ -92,7 +87,9 @@ public class Guardian extends AbstractActor {
      * Checks finished sub systems.
      */
     private void checkLoadingSubs() {
-        if (finSubs == SUBSYS) {
+        finSubs++;
+
+        if (finSubs == (NetCat.isBidirectional() ? 6 : 4)) {
             reporter.tell(Report.create(Report.Type.NONE, ""), self());
             reporter.tell(Report.create(Report.Type.INFO, "System started!"), self());
         }
@@ -140,10 +137,7 @@ public class Guardian extends AbstractActor {
     public Receive createReceive() {
         return receiveBuilder()
                 .match(Terminated.class, t -> checkFamily())
-                .matchEquals(Notice.FINISH, s-> {
-                    finSubs++;
-                    checkLoadingSubs();
-                })
+                .matchEquals(Notice.READY, s-> checkLoadingSubs())
                 .build();
     }
 }

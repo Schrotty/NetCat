@@ -24,12 +24,12 @@ public class TCPSocket implements AbstractSocket {
             return;
         }
 
-        socket = new Socket(hostname, 0);
+        socket = new Socket(hostname, port);
+        input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
     }
 
     private void connect() throws IOException {
         socket = serverSocket.accept();
-
         input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
     }
 

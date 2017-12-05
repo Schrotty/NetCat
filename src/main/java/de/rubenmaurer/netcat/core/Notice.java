@@ -7,5 +7,6 @@ package de.rubenmaurer.netcat.core;
  * @version $Id: $Id
  */
 public enum Notice {
-    FINISH
+    FINISH,
+    READY
 }

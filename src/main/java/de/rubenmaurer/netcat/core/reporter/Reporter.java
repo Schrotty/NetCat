@@ -72,7 +72,7 @@ public class Reporter extends AbstractActor {
      * @param message the message to print
      */
     private void print(String message) {
-        if (!NetCat.runsSilent()) System.out.println(String.format(">> %s", message));
+        if (!NetCat.isSilent()) System.out.println(String.format(">> %s", message));
     }
     
     /**

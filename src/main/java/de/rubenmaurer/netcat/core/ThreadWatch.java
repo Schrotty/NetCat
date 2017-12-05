@@ -26,7 +26,7 @@ public class ThreadWatch extends AbstractActor {
     @Override
     public void preStart() {
         Guardian.reporter.tell(Report.create(Report.Type.ONLINE), self());
-        context().parent().tell(Notice.FINISH, self());
+        context().parent().tell(Notice.READY, self());
     }
 
     /** {@inheritDoc} */
@@ -42,9 +42,7 @@ public class ThreadWatch extends AbstractActor {
      */
     public Receive createReceive() {
         return receiveBuilder()
-                .matchEquals(Notice.FINISH, s -> {
-                    self().tell(PoisonPill.getInstance(), self());
-                })
+                .matchEquals(Notice.FINISH, s -> self().tell(PoisonPill.getInstance(), self()))
                 .build();
     }
 }

@@ -41,7 +41,7 @@ public class Transmitter extends AbstractActor {
     @Override
     public void preStart() {
         Guardian.reporter.tell(Report.create(Report.Type.ONLINE), self());
-        context().parent().tell(Notice.FINISH, self());
+        context().parent().tell(Notice.READY, self());
     }
 
     /** {@inheritDoc} */

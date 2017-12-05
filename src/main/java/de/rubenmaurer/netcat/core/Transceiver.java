@@ -87,6 +87,8 @@ public class Transceiver extends AbstractActor {
                 transmitter = getContext().actorOf(Transmitter.getProps(socket), "transmitter");
                 context().watch(transmitter);
             }
+
+            context().parent().tell(Notice.READY, self());
         }
     }
 
@@ -116,7 +118,7 @@ public class Transceiver extends AbstractActor {
                 })
                 .match(String.class, s -> transmitter.tell(s, self()))
                 .match(Terminated.class, t -> checkFamily())
-                .matchEquals(Notice.FINISH, s-> context().parent().tell(Notice.FINISH, self()))
+                .matchEquals(Notice.READY, s-> context().parent().tell(Notice.READY, self()))
                 .build();
     }
 

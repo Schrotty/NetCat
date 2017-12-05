@@ -20,7 +20,7 @@ public class Printer extends AbstractActor {
     @Override
     public void preStart() {
         Guardian.reporter.tell(Report.create(Report.Type.ONLINE), self());
-        context().parent().tell(Notice.FINISH, self());
+        context().parent().tell(Notice.READY, self());
     }
 
     /** {@inheritDoc} */
@@ -38,7 +38,7 @@ public class Printer extends AbstractActor {
     public Receive createReceive() {
         return receiveBuilder()
                 .matchEquals("\u0004", s -> context().stop(self()))
-                .match(String.class, s -> System.out.println(String.format(">> %s", s)))
+                .match(String.class, System.out::println)
                 .build();
     }
 }

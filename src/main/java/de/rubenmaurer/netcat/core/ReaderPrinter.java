@@ -55,6 +55,8 @@ public class ReaderPrinter extends AbstractActor {
             context().watch(threadWatch);
             Reader.start(threadWatch);
         }
+
+        context().parent().tell(Notice.READY, self());
     }
 
     /** {@inheritDoc} */
@@ -71,12 +73,10 @@ public class ReaderPrinter extends AbstractActor {
      */
     public Receive createReceive() {
         return receiveBuilder()
-                .matchEquals("\u0004", s -> {
-                    printer.tell(PoisonPill.getInstance(), getSelf());
-                })
+                .matchEquals("\u0004", s -> printer.tell(PoisonPill.getInstance(), getSelf()))
                 .match(String.class, s -> printer.tell(s, getSelf()))
                 .match(Terminated.class, t -> checkFamily())
-                .matchEquals(Notice.FINISH, s-> context().parent().tell(Notice.FINISH, self()))
+                .matchEquals(Notice.READY, s-> context().parent().tell(Notice.READY, self()))
                 .build();
     }
 }

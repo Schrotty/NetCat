@@ -2,7 +2,6 @@ package de.rubenmaurer.netcat;
 
 import akka.actor.ActorSystem;
 import de.rubenmaurer.netcat.core.Guardian;
-import de.rubenmaurer.netcat.util.ParameterParser;
 import de.rubenmaurer.netcat.util.ParameterValidator;
 import org.fusesource.jansi.AnsiConsole;
 
@@ -17,22 +16,22 @@ public class NetCat {
     /**
      * Silent mode active?
      */
-    private static boolean isSilent = false;
+    private static boolean silent = false;
 
     /**
      * Is Netcat in bidi mode?
      */
-    private static boolean isBidirectional = true;
+    private static boolean bidirectional = true;
 
     /**
      * Is in client mode?
      */
-    private static boolean isClient = true;
+    private static boolean client = true;
 
     /**
      * Netcat uses tcp?
      */
-    private static boolean useTcp = true;
+    private static boolean tcp = true;
 
     /**
      * Main entry point of this application.
@@ -43,7 +42,13 @@ public class NetCat {
         AnsiConsole.systemInstall();
 
         if (params.length >= 2) {
-            ParameterParser.parse(params);
+            for (String param : params) {
+                if (param.equals("-s")) silent = true;
+                if (param.equals("-l")) client = false;
+                if (param.equals("-uni")) bidirectional = false;
+                if (param.equals("-udp")) tcp = false;
+            }
+
             int port = ParameterValidator.validatePort(params[1]);
 
             if (port != -1) {
@@ -61,8 +66,8 @@ public class NetCat {
      *
      * @return is in silent mode?
      */
-    public static boolean runsSilent() {
-        return isSilent;
+    public static boolean isSilent() {
+        return silent;
     }
 
     /**
@@ -71,7 +76,7 @@ public class NetCat {
      * @return is in bidi mode?
      */
     public static boolean isBidirectional() {
-        return isBidirectional;
+        return bidirectional;
     }
 
     /**
@@ -80,7 +85,7 @@ public class NetCat {
      * @return is in client mode?
      */
     public static boolean isClient() {
-        return isClient;
+        return client;
     }
 
     /**
@@ -89,22 +94,6 @@ public class NetCat {
      * @return uses tcp?
      */
     public static boolean isTCP() {
-        return useTcp;
-    }
-
-    public static void setSilentMode(boolean isSilent) {
-        NetCat.isSilent = isSilent;
-    }
-
-    public static void setUniMode(boolean uniMode) {
-        NetCat.isBidirectional = uniMode;
-    }
-
-    public static void setUDPMode(boolean UDPMode) {
-        NetCat.useTcp = UDPMode;
-    }
-
-    public static void setClientMode(boolean clientMode) {
-        NetCat.isClient = clientMode;
+        return tcp;
     }
 }
