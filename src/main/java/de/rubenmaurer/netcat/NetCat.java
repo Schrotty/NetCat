@@ -34,6 +34,11 @@ public class NetCat {
     private static boolean tcp = true;
 
     /**
+     * Netcat in mirror mode?
+     */
+    private static boolean mirror = false;
+
+    /**
      * Main entry point of this application.
      *
      * @param params start parameter
@@ -47,6 +52,12 @@ public class NetCat {
                 if (param.equals("-l")) client = false;
                 if (param.equals("-uni")) bidirectional = false;
                 if (param.equals("-udp")) tcp = false;
+
+                //EXPERIMENTAL
+                if (param.equals("-m")) {
+                    mirror = true;
+                    bidirectional = false;
+                }
             }
 
             int port = ParameterValidator.validatePort(params[1]);
@@ -95,5 +106,14 @@ public class NetCat {
      */
     public static boolean isTCP() {
         return tcp;
+    }
+
+    /**
+     * Is netcat in mirror mode?
+     *
+     * @return in mirror mode?
+     */
+    public static boolean isMirror() {
+        return mirror;
     }
 }

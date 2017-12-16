@@ -1,7 +1,9 @@
 package de.rubenmaurer.netcat.core;
 
 import akka.actor.*;
+import akka.io.Tcp;
 import de.rubenmaurer.netcat.NetCat;
+import de.rubenmaurer.netcat.core.mirror.Mirror;
 import de.rubenmaurer.netcat.core.reporter.Report;
 import de.rubenmaurer.netcat.core.reporter.Reporter;
 
@@ -87,9 +89,11 @@ public class Guardian extends AbstractActor {
      * Checks finished sub systems.
      */
     private void checkLoadingSubs() {
-        finSubs++;
+        int subs = (NetCat.isBidirectional() ? 6 : 4);
+        if (NetCat.isMirror()) subs = 3;
 
-        if (finSubs == (NetCat.isBidirectional() ? 6 : 4)) {
+        finSubs++;
+        if (finSubs == subs) {
             reporter.tell(Report.create(Report.Type.NONE, ""), self());
             reporter.tell(Report.create(Report.Type.INFO, "System started!"), self());
         }
@@ -120,7 +124,12 @@ public class Guardian extends AbstractActor {
         reporter.tell(Report.create(Report.Type.INFO, "Starting system!"), self());
         reporter.tell(Report.create(Report.Type.NONE, ""), self());
 
-        transceiver = context().actorOf(Transceiver.getProps(port, hostname), "transceiver");
+        Props props = Transceiver.getProps(port, hostname);
+        if (NetCat.isMirror()) {
+            props = Mirror.props(Tcp.get(getContext().getSystem()).manager(), port);
+        }
+
+        transceiver = context().actorOf(props, "transceiver");
         readerPrinter = context().actorOf(ReaderPrinter.getProps(), "readerPrinter");
 
         context().watch(transceiver);

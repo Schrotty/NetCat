@@ -1,6 +1,7 @@
 de.rubenmaurer.netcat
 de.rubenmaurer.netcat.core
 de.rubenmaurer.netcat.core.interfaces
+de.rubenmaurer.netcat.core.mirror
 de.rubenmaurer.netcat.core.reporter
 de.rubenmaurer.netcat.core.sockets
 de.rubenmaurer.netcat.util
