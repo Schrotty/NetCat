@@ -84,7 +84,7 @@ public class UDPSocket implements AbstractSocket {
             //TODO: Works well...
             if (address.equals(new InetSocketAddress("-l", address.getPort()))) {
                 address = new InetSocketAddress(packet.getAddress(), packet.getPort());
-                socket.connect(packet.getSocketAddress());
+                //socket.connect(packet.getSocketAddress());
             }
         } catch (IOException e) {
             e.printStackTrace();

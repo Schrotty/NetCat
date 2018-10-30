@@ -28,9 +28,12 @@ hs_err_pid*
 .idea
 out
 gen
-.gitignore
 dependency-reduced-pom.xml
 target/
 /buildNumber.properties
 /pom.xml.releaseBackup
 /release.properties
+/.classpath
+/.project
+/NetCat.iml
+/.settings/
